@@ -1,0 +1,13 @@
+:root {
+  --bg-top: #f6f8ff;
+  --bg-bottom: #eceefe;
+  --ink: #2a2146;
+  --ink-soft: #605686;
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --accent: #8f7dff;
+  --accent-2: #52d5ff;
+  --success: #57f2c2;
+  --bad: #ff9a9f;
+  --disaster: #ff628a;
+}

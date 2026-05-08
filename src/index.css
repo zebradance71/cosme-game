@@ -1,0 +1,9 @@
+@import './styles/base.css';
+@import './styles/gameplay.css';
+@import './styles/result-normal.css';
+@import './styles/result-variants.css';
+@import './styles/result-variants-disaster-success.css';
+@import './styles/overlay-share.css';
+@import './styles/overlay-share-capture.css';
+@import './styles/animations.css';
+@import './styles/animations-disaster.css';

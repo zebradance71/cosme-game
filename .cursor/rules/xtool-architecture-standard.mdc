@@ -1,0 +1,31 @@
+---
+description: Component design and anti-bloat rules for xolve
+alwaysApply: true
+---
+
+# xolve Architecture Standard (Anti-Bloat)
+
+## 1. "Thin" Pages (Minimal Wiring)
+- Page components (e.g., `AutoEngagementPage.tsx`) MUST be "wiring only."
+- **Target line count**: Under 100 lines per Page.
+- DO NOT define business logic, complex handlers, or states inside the Page. 
+- Offload all logic to a dedicated custom hook (e.g., `useAutoEngagementPageModel.ts`).
+
+## 2. Atomic Component Split
+- When adding new features or UI sections, ALWAYS create a new file in `ui/[feature]/[ComponentName].tsx`.
+- Never append >30 lines of UI code directly to an existing parent component.
+- If any component exceeds **250 lines**, it MUST be decomposed into smaller sub-components.
+
+## 3. Logic Outsourcing (Hooks-First)
+- All business logic, API/IPC calls, and state management must reside in custom Hooks (`useXxx.ts`).
+- If a Hook exceeds **300 lines**, split it by responsibility (e.g., `useActivityStats.ts`, `useSearchSettings.ts`).
+
+## 4. New Feature Protocol
+- For major additions, the AI MUST follow this sequence:
+  1. Propose the file structure for new sub-components.
+  2. Create independent sub-component files first.
+  3. Finally, import them into the main Page with minimal props.
+
+## 5. No Inline Bloat
+- Use Tailwind classes efficiently. 
+- If a `div` tree becomes too deep, extract it as a sub-component even if it's only used once to maintain readability.

@@ -1,0 +1,15 @@
+.glass-card,
+.glass-pill {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 28px rgba(92, 72, 170, 0.14);
+}
+
+.glass-card {
+  border-radius: 20px;
+}
+
+.glass-pill {
+  border-radius: 999px;
+}

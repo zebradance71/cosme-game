@@ -1,0 +1,22 @@
+---
+description: Automated documentation synchronization rules
+alwaysApply: true
+---
+# xtool Documentation Sync
+
+## Update Triggers
+- Completion of quality gates or E2E tests.
+- Updates to project phases, operational procedures, or troubleshooting guides.
+- Detection of failures caused by external specification changes.
+
+## Target Files
+- `docs/release_preflight_checklist.md`
+- `docs/quality_gate_routine.md`
+- `docs/troubleshoot_guide.md`
+- `docs/refactor_phase_ledger.md`
+- `docs/external_spec_changes.md`
+
+## Documentation Standards
+- Record date, command, and result (pass/fail).
+- Maintain terminology consistency.
+- For external spec changes, immediately document "what changed" and "workarounds."

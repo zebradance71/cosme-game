@@ -1,0 +1,17 @@
+---
+description: Quality gate enforcement for xtool/xolve
+alwaysApply: true
+---
+# xtool Quality Gates
+
+## Execution Protocols
+- Every small change requires a successful `npm run build`.
+- Run `npm run preflight:release` for config, startup, or domain changes.
+- Execute `npm run quality:gate` before any release build.
+- Run `npm run test:e2e:flow:ui` for environments with active licenses.
+- Monitor `logs/api-activity.log` for successful responses (e.g., 200 OK) during X API or scraping changes.
+- ALWAYS use sandbox/test accounts for automated tests. Prohibit production account testing.
+
+## Handling Results
+- Document all pass/fail results clearly.
+- On failure, record the root cause and reproduction steps before proceeding.

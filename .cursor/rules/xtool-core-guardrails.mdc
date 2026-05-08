@@ -1,0 +1,23 @@
+---
+description: Critical implementation guardrails for xtool/xolve
+alwaysApply: true
+---
+# xtool Core Guardrails
+
+## Objectives
+- Ensure stability by preventing regressions during incremental improvements.
+
+## Generated Code
+- Do **not** edit or refactor `src/main/generated/prisma-client/**` (including `runtime/library.d.ts`). It is produced by Prisma; changes are lost on `prisma generate`. Adjust `prisma/schema.prisma`, generator `output`, or wrap usage in app code (e.g. `prismaClient.ts`) instead.
+
+## Mandatory Rules
+- Maintain backward compatibility for existing API/IPC contracts.
+- Apply changes in small, incremental diffs.
+- Never revert existing logic without explicit rationale.
+- Prioritize `appDefaults` for configuration presets.
+- Respect strict boundaries between Main, Renderer, and Shared processes.
+- Reuse common utility functions; avoid redundant I/O logic.
+
+## Performance & UI
+- Use lazy loading for heavy routes/panels.
+- If performance regression is suspected, take the median of 3 measurements.

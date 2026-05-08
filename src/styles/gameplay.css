@@ -1,0 +1,328 @@
+
+.reaction-glowBurst .spark,
+.reaction-glassGlow .spark {
+  animation: twinkle 0.5s ease-in-out infinite alternate;
+}
+
+.reaction-redAlert .face-orb {
+  filter: hue-rotate(-10deg) saturate(1.15);
+}
+
+.reaction-oilFlash .face-orb {
+  box-shadow:
+    inset 0 -10px 30px rgba(255, 255, 255, 0.85),
+    0 12px 30px rgba(235, 184, 126, 0.45);
+}
+
+.reaction-abyssDrop {
+  animation: quakeHard 0.18s linear 4;
+}
+
+.skin-card {
+  text-align: left;
+  padding: 14px;
+}
+
+.skin-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.daily-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #4f46e5;
+  background: rgba(82, 213, 255, 0.18);
+  border: 1px solid rgba(82, 213, 255, 0.45);
+}
+
+.skin-card h2 {
+  margin: 6px 0 4px;
+}
+
+.micro-label {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.serum-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.skin-image-map {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  aspect-ratio: 819 / 1017;
+}
+
+.skin-image-map img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.skin-hotspot {
+  position: absolute;
+  border: 0;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0);
+}
+
+.skin-hotspot.is-selected {
+  box-shadow: inset 0 0 0 2px rgba(82, 213, 255, 0.85);
+  background: rgba(82, 213, 255, 0.1);
+}
+
+.skin-image-map.is-applying .skin-hotspot {
+  pointer-events: none;
+}
+
+.serum-grid.is-applying {
+  pointer-events: none;
+}
+
+.serum-card {
+  text-align: left;
+  border: 0;
+  padding: 10px;
+  color: inherit;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.serum-card.is-selected {
+  outline: 2px solid rgba(82, 213, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+.serum-grid.is-applying .serum-card {
+  opacity: 0.6;
+}
+
+.serum-grid.is-applying .serum-card.is-selected {
+  opacity: 1;
+  animation: selectedPulse 0.35s ease-in-out infinite alternate;
+}
+
+.serum-bottle {
+  width: 28px;
+  height: 40px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(143, 125, 255, 0.36));
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.serum-card small {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-soft);
+}
+
+.primary-button {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 16px;
+  color: white;
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.retry-button {
+  margin-top: 4px;
+}
+
+.retry-button.cta-pulse {
+  animation: ctaPulse 1s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(143, 125, 255, 0.5);
+}
+
+.apply-button:disabled {
+  opacity: 0.55;
+}
+
+.tempo-hint {
+  margin: -4px 2px 0;
+  font-size: 12px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.tempo-hint.combo-ready {
+  color: #5b3ee6;
+  font-weight: 700;
+}
+
+.result-stage-spacer {
+  width: 100%;
+  min-height: clamp(340px, 54vh, 520px);
+}
+
+.hud-recovery-floating {
+  position: absolute;
+  top: 74px;
+  left: 20px;
+  right: 20px;
+  z-index: 12;
+  display: grid;
+  gap: 8px;
+}
+
+.hud-recovery-floating .recovery-suggestion-card {
+  margin: 0;
+}
+
+@media (max-width: 420px) {
+  .hud-recovery-floating {
+    top: 72px;
+    left: 14px;
+    right: 14px;
+  }
+}
+
+.ambient-footer-effects {
+  position: relative;
+  width: 100%;
+  min-height: 120px;
+  margin-top: 2px;
+  border-radius: 18px;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(212, 239, 255, 0.2)),
+    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.5), transparent 40%),
+    linear-gradient(160deg, rgba(241, 246, 255, 0.38), rgba(220, 239, 255, 0.26));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.ambient-glow,
+.ambient-particle,
+.ambient-reflection {
+  position: absolute;
+}
+
+.ambient-glow {
+  width: 140px;
+  height: 140px;
+  border-radius: 999px;
+  filter: blur(16px);
+}
+
+.ambient-glow-a {
+  left: -24px;
+  bottom: -52px;
+  background: rgba(188, 230, 255, 0.35);
+  animation: ambientGlowFloat 9s ease-in-out infinite;
+}
+
+.ambient-glow-b {
+  right: -30px;
+  bottom: -58px;
+  background: rgba(218, 206, 255, 0.3);
+  animation: ambientGlowFloat 11s ease-in-out infinite reverse;
+}
+
+.ambient-particle {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 12px rgba(180, 230, 255, 0.6);
+  animation: ambientParticleDrift 7s ease-in-out infinite;
+}
+
+.ambient-particle-a {
+  left: 22%;
+  bottom: 16px;
+}
+
+.ambient-particle-b {
+  left: 54%;
+  bottom: 12px;
+  animation-delay: 1.4s;
+}
+
+.ambient-particle-c {
+  left: 76%;
+  bottom: 20px;
+  animation-delay: 2.4s;
+}
+
+.ambient-reflection {
+  top: -22px;
+  left: -18%;
+  width: 58%;
+  height: 54px;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.56) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(-6deg);
+  animation: ambientSweep 8.5s ease-in-out infinite;
+}
+
+.achievement-panel {
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.82), rgba(229, 239, 255, 0.66));
+}
+
+.achievement-item {
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.68);
+}
+
+.achievement-item .micro-label {
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.achievement-item strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+  color: #31447a;
+  letter-spacing: 0.02em;
+}
+
+.bgm-toggle-button {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.9), rgba(227, 240, 255, 0.78));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 30;
+  color: #374974;
+}
+
+.bgm-toggle-button:hover {
+  filter: brightness(1.06);
+}
