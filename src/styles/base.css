@@ -19,15 +19,20 @@ body {
 
 .app-bg {
   min-height: 100svh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
     calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
 }
 
 .app-frame {
+  --app-frame-vpad: calc(24px + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
   width: min(100%, 420px);
-  min-height: min(100svh - 24px, 900px);
+  min-height: min(900px, calc(100svh - var(--app-frame-vpad)));
+  display: flex;
+  flex-direction: column;
   border-radius: 32px;
   background:
     radial-gradient(circle at 20% 10%, rgba(143, 125, 255, 0.28), transparent 38%),
@@ -38,12 +43,22 @@ body {
   overflow: hidden;
 }
 
+/* 結果表示: 絶対配置オーバーレイの containing block をフレーム高まで確保（grid の shrink 回避） */
+.app-frame:has(.game-shell.result-mode) {
+  height: min(900px, calc(100svh - var(--app-frame-vpad)));
+}
+
 .game-shell {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 14px;
+}
+
+.game-shell.result-mode {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .pour-bottle-flight {

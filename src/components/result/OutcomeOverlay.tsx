@@ -1,13 +1,14 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Resolution, SkinType } from '../../core/game/types';
-import { outcomeToPatternKey, pickResultImage, resultPatternImageMap } from '../../data/resultVisuals';
+import { outcomeToPatternKey, pickResultImage, rareResultImagePool, resultPatternImageMap } from '../../data/resultVisuals';
 import {
   DisasterOutcomePanel,
   FailOutcomePanel,
   FallbackOutcomePanel,
   MehOutcomePanel,
   NormalOutcomePanel,
+  RareExcellentOutcomePanel,
   SuccessOutcomePanel,
 } from './OutcomeOverlayPanels';
 import {
@@ -18,6 +19,7 @@ import {
   buildMehRank,
   buildMehStats,
   buildNormalMetrics,
+  buildRareSuccessStats,
   buildSuccessRank,
   buildSuccessStats,
 } from './outcomeOverlayData';
@@ -26,28 +28,47 @@ import { useOutcomeOverlayEffects } from './useOutcomeOverlayEffects';
 interface OutcomeOverlayProps {
   resolution: Resolution | null;
   visible: boolean;
-  totalScore: number;
   dailySkinCode: string;
   dailySeed: string;
   skinType: SkinType | null;
   dailyVariantClass: string;
   comboCutIn: boolean;
   successStreak: number;
+  rareResultActive: boolean;
   onRetry: () => void;
 }
 
 export function OutcomeOverlay({
   resolution,
   visible,
-  totalScore,
   dailySkinCode,
   dailySeed,
   skinType,
   dailyVariantClass,
   comboCutIn,
   successStreak,
+  rareResultActive,
   onRetry,
 }: OutcomeOverlayProps) {
+  const [freezeMotion, setFreezeMotion] = useState(false);
+  const [fadeMotion, setFadeMotion] = useState(false);
+  useEffect(() => {
+    if (!visible || !resolution) {
+      return;
+    }
+    const fadeTimer = window.setTimeout(() => {
+      setFadeMotion(true);
+    }, 2000);
+    const freezeTimer = window.setTimeout(() => {
+      setFreezeMotion(true);
+    }, 2400);
+    return () => {
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(freezeTimer);
+    };
+  }, [visible, resolution]);
+  const motionState: 'active' | 'fading' | 'frozen' = freezeMotion ? 'frozen' : fadeMotion ? 'fading' : 'active';
+
   const basePatternKey = resolution ? outcomeToPatternKey[resolution.outcome] : 'normal';
   const patternKey =
     resolution?.outcome === 'bad' &&
@@ -55,59 +76,64 @@ export function OutcomeOverlay({
       ? 'fail'
       : basePatternKey;
   const resultImagePath = useMemo(
-    () => pickResultImage(resultPatternImageMap[patternKey]),
-    [patternKey],
+    () => pickResultImage(rareResultActive ? rareResultImagePool : resultPatternImageMap[patternKey]),
+    [patternKey, rareResultActive],
   );
-  const isNormal = patternKey === 'normal';
-  const isSuccess = patternKey === 'success';
-  const isMeh = patternKey === 'meh';
-  const isFail = patternKey === 'fail';
-  const isDisaster = patternKey === 'disaster';
+  const isRareDisplay = rareResultActive;
+  const isPlainSuccess = patternKey === 'success' && !isRareDisplay;
+  /* 非レア SUCCESS もレアと同じ .success カード（黄系）。レイアウトは NORMAL と gameplay で共有 */
+  const overlayToneClass = isRareDisplay || isPlainSuccess ? 'success' : (resolution?.outcome ?? 'normal');
+  const isNormal = !isRareDisplay && patternKey === 'normal';
+  const isSuccess = isRareDisplay || patternKey === 'success';
+  const isMeh = !isRareDisplay && patternKey === 'meh';
+  const isFail = !isRareDisplay && patternKey === 'fail';
+  const isDisaster = !isRareDisplay && patternKey === 'disaster';
 
-  const normalStatuses = buildNormalMetrics(dailySeed, skinType);
+  const roundScoreDelta = resolution?.scoreDelta ?? 0;
+  const normalStatuses = buildNormalMetrics(dailySeed, skinType, roundScoreDelta);
   const successRank = buildSuccessRank(dailySeed);
-  const successStats = buildSuccessStats(dailySeed);
+  const successStats = buildSuccessStats(dailySeed, roundScoreDelta);
+  const rareSuccessStats = useMemo(() => buildRareSuccessStats(roundScoreDelta), [roundScoreDelta]);
   const mehRank = buildMehRank(dailySeed);
-  const mehStats = buildMehStats(dailySeed);
+  const mehStats = buildMehStats(dailySeed, roundScoreDelta);
   const failRank = buildFailRank(dailySeed);
-  const failData = buildFailStats(dailySeed);
+  const failData = buildFailStats(dailySeed, roundScoreDelta);
   const disasterRank = buildDisasterRank(dailySeed);
-  const disasterData = buildDisasterData(dailySeed);
+  const disasterData = buildDisasterData(dailySeed, roundScoreDelta);
 
   const {
     showShutterGuide,
     showVoiceCaption,
     voiceCaptionText,
     showRetryPulse,
-    showSuccessFlash,
     autoFocusShot,
     showDisasterFragmentBreak,
-    animatedScore,
+    animatedRoundDelta,
   } = useOutcomeOverlayEffects({
     visible,
     resolution,
     isSuccess,
+    excellentPresentation: isRareDisplay,
     isDisaster,
-    totalScore,
   });
 
   return (
     <AnimatePresence>
       {visible && resolution ? (
         <motion.div
-          className={`outcome-overlay ${resolution.outcome} ${(isNormal || isSuccess) ? 'screenshot-focus' : ''} ${isSuccess && autoFocusShot ? 'auto-focus-shot' : ''} ${isDisaster && showDisasterFragmentBreak ? 'disaster-fragment-break' : ''}`}
+          className={`outcome-overlay ${overlayToneClass} ${isRareDisplay ? 'rare-outcome excellent-only' : ''} ${fadeMotion ? 'motion-fade' : ''} ${freezeMotion ? 'freeze-motion' : ''} ${(isNormal || isRareDisplay) ? 'screenshot-focus' : ''} ${isRareDisplay && autoFocusShot ? 'auto-focus-shot' : ''} ${isDisaster && showDisasterFragmentBreak ? 'disaster-fragment-break' : ''}`}
           initial={{ opacity: 0, y: 20, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 30, scale: 0.94 }}
         >
-          {(isNormal || isSuccess) ? (
+          {(isNormal || isRareDisplay) ? (
             <div className="screenshot-sparkles" aria-hidden>
               <span className="screenshot-spark screenshot-spark-a" />
               <span className="screenshot-spark screenshot-spark-b" />
               <span className="screenshot-spark screenshot-spark-c" />
             </div>
           ) : null}
-          {isSuccess ? (
+          {isRareDisplay ? (
             <div className={`story-crop-guide ${autoFocusShot ? 'active' : ''}`} aria-hidden>
               <div className="story-crop-corners">
                 <span className="crop-corner tl" />
@@ -118,33 +144,63 @@ export function OutcomeOverlay({
             </div>
           ) : null}
           {isNormal ? (
-            <NormalOutcomePanel resultImagePath={resultImagePath} totalScore={totalScore} normalStatuses={normalStatuses} />
+            <NormalOutcomePanel
+              resultImagePath={resultImagePath}
+              animatedRoundDelta={animatedRoundDelta}
+              dailySeed={dailySeed}
+              metrics={normalStatuses.map((s) => ({ label: s.label, value: s.value }))}
+              rankMain="NORMAL"
+              rankSubPair={['CLEAN', 'STABLE']}
+              accent="neutral"
+              comboStreak={successStreak}
+              motionState={motionState}
+            />
+          ) : isRareDisplay ? (
+            <RareExcellentOutcomePanel
+              resultImagePath={resultImagePath}
+              animatedRoundDelta={animatedRoundDelta}
+              successStreak={successStreak}
+              dailySeed={dailySeed}
+              motionState={motionState}
+              rareStats={rareSuccessStats}
+            />
           ) : isSuccess ? (
             <SuccessOutcomePanel
               resultImagePath={resultImagePath}
-              showSuccessFlash={showSuccessFlash}
               successRank={successRank}
-              animatedScore={animatedScore}
+              successSubtitle="STEADY ROUTINE"
               successStats={successStats}
-              successStreak={successStreak}
+              animatedRoundDelta={animatedRoundDelta}
               dailySeed={dailySeed}
-              totalScore={totalScore}
+              successStreak={successStreak}
+              motionState={motionState}
             />
           ) : isMeh ? (
             <MehOutcomePanel
               resultImagePath={resultImagePath}
               mehRank={mehRank}
               mehStats={mehStats}
-              scoreDelta={resolution.scoreDelta}
+              animatedRoundDelta={animatedRoundDelta}
+              dailySeed={dailySeed}
+              motionState={motionState}
             />
           ) : isFail ? (
-            <FailOutcomePanel resultImagePath={resultImagePath} failRank={failRank} failData={failData} dailySeed={dailySeed} />
+            <FailOutcomePanel
+              resultImagePath={resultImagePath}
+              failRank={failRank}
+              failData={failData}
+              dailySeed={dailySeed}
+              animatedRoundDelta={animatedRoundDelta}
+              motionState={motionState}
+            />
           ) : isDisaster ? (
             <DisasterOutcomePanel
               resultImagePath={resultImagePath}
               disasterRank={disasterRank}
               disasterData={disasterData}
               dailySeed={dailySeed}
+              animatedRoundDelta={animatedRoundDelta}
+              motionState={motionState}
             />
           ) : (
             <FallbackOutcomePanel
@@ -163,7 +219,7 @@ export function OutcomeOverlay({
 
           <button
             type="button"
-            className={`primary-button retry-button result-ui-controls ${showRetryPulse ? 'cta-pulse' : ''} ${isSuccess ? 'success-retry-button' : ''} ${isFail ? 'fail-retry-button' : ''} ${isDisaster ? 'disaster-retry-button' : ''}`}
+            className={`primary-button retry-button result-ui-controls ${showRetryPulse ? 'cta-pulse' : ''} ${isRareDisplay ? 'success-retry-button' : ''} ${isFail ? 'fail-retry-button' : ''} ${isDisaster ? 'disaster-retry-button' : ''}`}
             onClick={onRetry}
           >
             もう1回やる

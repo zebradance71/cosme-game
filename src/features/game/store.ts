@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { baseTimeline, outcomeTimelineBoost } from '../../animations/timelines';
-import { evaluateUnlockedTitles } from './titleSystem';
+import { pickLatestUnlockedTitle, titlesUnlockedAtScore } from './titleSystem';
 import {
   applySerum,
   chooseSerum,
@@ -9,7 +9,9 @@ import {
   resolveRound,
   showResult,
   startRound,
+  STARTING_SCORE,
 } from '../../core/game/engine';
+import { buildRandomSuccessResolution } from '../../core/game/rules';
 import type { GameState, SerumType } from '../../core/game/types';
 
 interface GameStore extends GameState {
@@ -28,42 +30,11 @@ interface GameStore extends GameState {
   comboCutIn: boolean;
   beginRound: () => void;
   pickSerum: (serum: SerumType) => void;
-  runSequence: () => Promise<void>;
+  runSequence: (opts?: { rarePullTitle?: string; rareScoreDelta?: number; isRarePull?: boolean }) => Promise<void>;
   retry: () => void;
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const titleStorageKey = 'cosme-game-unlocked-titles';
-
-function readStoredTitles(): string[] {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-  try {
-    const raw = window.localStorage.getItem(titleStorageKey);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed.filter((value): value is string => typeof value === 'string');
-  } catch {
-    return [];
-  }
-}
-
-function writeStoredTitles(titles: string[]): void {
-  if (typeof window === 'undefined') {
-    return;
-  }
-  try {
-    window.localStorage.setItem(titleStorageKey, JSON.stringify(titles));
-  } catch {
-    // Ignore storage errors silently.
-  }
-}
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...initialGameState,
@@ -77,7 +48,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   totalDisasters: 0,
   totalPoreCollapses: 0,
   poreCollapseIndex: 0,
-  unlockedTitleChips: readStoredTitles(),
+  unlockedTitleChips: titlesUnlockedAtScore(STARTING_SCORE),
   latestUnlockedTitle: null,
   comboCutIn: false,
   beginRound: () => {
@@ -92,7 +63,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     );
   },
   pickSerum: (serum) => set((state) => chooseSerum(state, serum)),
-  runSequence: async () => {
+  runSequence: async (opts) => {
     const snapshot = get();
     if (snapshot.phase !== 'serumSelected' || snapshot.isProcessing) {
       return;
@@ -101,10 +72,67 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => applySerum(state));
     await wait(baseTimeline[0].ms);
     set((state) => resolveRound(state));
+    const rareScoreDelta = opts?.rareScoreDelta;
+    if (rareScoreDelta != null) {
+      set((state) => {
+        if (!state.resolution || !state.currentSkin || !state.selectedSerum) {
+          return state;
+        }
+        const preRoundTotal = state.totalScore - state.resolution.scoreDelta;
+        let nextTotal = Math.max(0, preRoundTotal + rareScoreDelta);
+        let scoreResetFromZero = false;
+        if (nextTotal === 0) {
+          nextTotal = STARTING_SCORE;
+          scoreResetFromZero = true;
+        }
+        const appliedRareDelta = nextTotal - preRoundTotal;
+
+        if (state.resolution.outcome === 'success') {
+          return {
+            ...state,
+            totalScore: nextTotal,
+            resolution: {
+              ...state.resolution,
+              scoreDelta: appliedRareDelta,
+              ...(scoreResetFromZero ? { scoreResetFromZero: true } : {}),
+            },
+          };
+        }
+
+        const successRes = buildRandomSuccessResolution();
+        return {
+          ...state,
+          totalScore: nextTotal,
+          resolution: {
+            outcome: 'success',
+            scoreDelta: appliedRareDelta,
+            reactionKey: successRes.reactionKey,
+            headline: successRes.headline,
+            detail: successRes.detail,
+            ...(scoreResetFromZero ? { scoreResetFromZero: true } : {}),
+          },
+        };
+      });
+    }
     const resolved = get().resolution;
     if (resolved) {
       set((state) => {
-        const nextStreak = resolved.outcome === 'success' ? state.successStreak + 1 : 0;
+        const totalScoreAfter = state.totalScore;
+        const isRareSuccess = resolved.outcome === 'success' && Boolean(opts?.isRarePull);
+
+        let nextCombo = state.successStreak;
+        if (resolved.scoreResetFromZero) {
+          nextCombo = 0;
+        } else if (resolved.outcome === 'disaster') {
+          nextCombo = 0;
+        } else if (resolved.outcome === 'bad') {
+          nextCombo = 0;
+        } else if (resolved.outcome === 'normal') {
+          /* 維持 */
+        } else if (resolved.outcome === 'success') {
+          nextCombo += isRareSuccess ? 2 : 1;
+        }
+
         const nextBadStreak = resolved.outcome === 'bad' ? state.badStreak + 1 : 0;
         const nextDisasterStreak = resolved.outcome === 'disaster' ? state.disasterStreak + 1 : 0;
         const totalResolved = state.totalResolved + 1;
@@ -120,25 +148,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
           disaster: 25,
         } as const;
         const nextPoreCollapseIndex = Math.max(0, state.poreCollapseIndex + poreDeltaMap[resolved.outcome]);
-        const titleSnapshot = {
-          totalRatedRuns,
-          totalSuccesses,
-          totalDisasters,
-          poreCollapseIndex: nextPoreCollapseIndex,
-          successStreak: nextStreak,
-          badStreak: nextBadStreak,
-          disasterStreak: nextDisasterStreak,
-        };
-        const autoUnlocked = evaluateUnlockedTitles(titleSnapshot);
-        const mergedTitleSet = Array.from(new Set([...state.unlockedTitleChips, ...autoUnlocked]));
-        const newlyUnlocked = mergedTitleSet.filter((title) => !state.unlockedTitleChips.includes(title));
-        const latestUnlockedTitle =
-          newlyUnlocked.length > 0 ? newlyUnlocked[newlyUnlocked.length - 1] : state.latestUnlockedTitle;
-        if (newlyUnlocked.length > 0) {
-          writeStoredTitles(mergedTitleSet);
-        }
+        // 称号はスコアのみで再計算（disaster でもチップを空にしない）。コンボ: success +1 / レア +2 / normal 維持 / bad・disaster で 0
+        const mergedTitleSet = titlesUnlockedAtScore(totalScoreAfter);
+        const latestUnlockedTitle = pickLatestUnlockedTitle(state.unlockedTitleChips, mergedTitleSet);
+
         return {
-          successStreak: nextStreak,
+          successStreak: nextCombo,
           badStreak: nextBadStreak,
           disasterStreak: nextDisasterStreak,
           totalResolved,
@@ -149,7 +164,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           poreCollapseIndex: nextPoreCollapseIndex,
           unlockedTitleChips: mergedTitleSet,
           latestUnlockedTitle,
-          comboCutIn: resolved.outcome === 'success' && nextStreak >= 3,
+          comboCutIn: resolved.outcome === 'success' && nextCombo >= 3,
         };
       });
     }
@@ -170,8 +185,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       totalDisasters,
       totalPoreCollapses,
       poreCollapseIndex,
-      unlockedTitleChips,
-      latestUnlockedTitle,
     } = get();
     set({
       ...initialGameState,
@@ -188,8 +201,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       totalDisasters,
       totalPoreCollapses,
       poreCollapseIndex,
-      unlockedTitleChips,
-      latestUnlockedTitle,
+      unlockedTitleChips: titlesUnlockedAtScore(totalScore <= 0 ? STARTING_SCORE : totalScore),
+      latestUnlockedTitle: null,
       comboCutIn: false,
     });
     set((state) => startRound(state));

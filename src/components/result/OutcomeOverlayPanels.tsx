@@ -1,4 +1,5 @@
 export {
+  RareExcellentOutcomePanel,
   MehOutcomePanel,
   NormalOutcomePanel,
   SuccessOutcomePanel,

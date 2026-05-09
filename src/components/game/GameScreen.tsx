@@ -2,20 +2,30 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { SerumCard } from '../cards/SerumCard';
 import { GameHud } from '../hud/GameHud';
-import { RecoverySuggestionCard } from '../result/RecoverySuggestionCard';
-import { pickUniqueRecoveryItems } from '../result/recoveryItems';
 import { OutcomeOverlay } from '../result/OutcomeOverlay';
+import { ResultAffiliateStrip } from '../result/ResultAffiliateStrip';
 import { TutorialOverlay } from './TutorialOverlay';
+import { getSerumCommentTone, pickSerumComment, type SerumCommentRoll } from './serumCommentary';
 import { useGameStore } from '../../features/game/store';
 import type { SerumType } from '../../core/game/types';
-import { getTitleFlavor } from '../../features/game/titleSystem';
+import { rollRareScoreDelta } from '../../core/game/scoring';
+import { getAchievementTitleChipClass, getTitleFlavor } from '../../features/game/titleSystem';
 import {
   buildDailySkinCode,
   buildDailyVariantClass,
   currentSkinLabel,
 } from '../../features/game/selectors';
-import { totalTimelineMs } from '../../animations/timelines';
 import { playOutcomeSfx } from '../../animations/sfx';
+
+/** 称号チップが増えても同じ枠に収まるよう段階的に縮小（レイアウト構造はそのまま） */
+function achievementTitleStripScale(count: number): number {
+  if (count <= 5) return 1;
+  if (count <= 8) return 0.92;
+  if (count <= 11) return 0.84;
+  if (count <= 14) return 0.76;
+  if (count <= 17) return 0.69;
+  return 0.62;
+}
 
 export function GameScreen() {
   const [heroShotFlash, setHeroShotFlash] = useState(false);
@@ -31,6 +41,8 @@ export function GameScreen() {
   } | null>(null);
   const [pourImpactPosition, setPourImpactPosition] = useState<{ x: number; y: number } | null>(null);
   const [showPourImpact, setShowPourImpact] = useState(false);
+  const [selectedSerumComment, setSelectedSerumComment] = useState<SerumCommentRoll | null>(null);
+  const [commentAnimKey, setCommentAnimKey] = useState(0);
   const shellRef = useRef<HTMLElement | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const tutorialSeenKey = 'cosme-game-tutorial-seen';
@@ -156,17 +168,27 @@ export function GameScreen() {
 
   useEffect(() => {
     if (phase === 'resultShown' && resolution) {
-      void playOutcomeSfx(resolution.outcome, dailyVariantClass, resolution.reactionKey);
+      void playOutcomeSfx(
+        resolution.outcome,
+        dailyVariantClass,
+        resolution.reactionKey,
+        Boolean(selectedSerumComment?.isRare),
+      );
     }
-  }, [phase, resolution?.reactionKey, resolution?.outcome, dailyVariantClass]);
+  }, [phase, resolution?.reactionKey, resolution?.outcome, dailyVariantClass, selectedSerumComment?.isRare]);
 
-  const estimatedMs = resolution ? totalTimelineMs(resolution.outcome) : 0;
-  const recoveryItems = useMemo(() => {
-    if (phase !== 'resultShown') {
-      return [];
+  useEffect(() => {
+    if (!selectedSerum) {
+      setSelectedSerumComment(null);
+      return;
     }
-    return pickUniqueRecoveryItems(3);
-  }, [phase, runCount]);
+    setSelectedSerumComment(pickSerumComment(selectedSerum, runCount));
+    setCommentAnimKey((prev) => prev + 1);
+  }, [selectedSerum, runCount]);
+  const achievementChipScale = useMemo(
+    () => achievementTitleStripScale(unlockedTitleChips.length),
+    [unlockedTitleChips.length],
+  );
   const successRate = totalRatedRuns > 0 ? Math.round((totalSuccesses / totalRatedRuns) * 100) : 0;
   const closeTutorial = () => {
     setShowTutorial(false);
@@ -226,21 +248,30 @@ export function GameScreen() {
     if (!selectedSerum || !canApply) {
       return;
     }
+    const shouldBoostRare = Boolean(selectedSerumComment?.isRare);
+    const sequenceOpts =
+      shouldBoostRare
+        ? {
+            rareScoreDelta: rollRareScoreDelta(),
+            isRarePull: true,
+            ...(selectedSerumComment?.rareTitleLabel
+              ? { rarePullTitle: selectedSerumComment.rareTitleLabel }
+              : {}),
+          }
+        : undefined;
     await runPourAnimation(selectedSerum);
-    await runSequence();
+    await runSequence(sequenceOpts);
   };
 
+  const isRareResultScreen = phase === 'resultShown' && Boolean(selectedSerumComment?.isRare);
+  const showSsrHintPanel =
+    (phase === 'idle' || phase === 'skinRevealed') ||
+    (phase === 'serumSelected' && !selectedSerumComment);
+
   return (
-    <main className="game-shell" ref={shellRef}>
+    <main className={`game-shell ${phase === 'resultShown' ? 'result-mode' : ''}`} ref={shellRef}>
       <div className={`hero-shot-flash ${heroShotFlash ? 'active' : ''}`} aria-hidden />
       <GameHud score={totalScore} runCount={runCount} successStreak={successStreak} />
-      {phase === 'resultShown' ? (
-        <div className="hud-recovery-floating">
-          {recoveryItems.map((item) => (
-            <RecoverySuggestionCard key={item.url} imagePath={null} item={item} />
-          ))}
-        </div>
-      ) : null}
       {phase !== 'resultShown' ? (
         <>
           <SerumCard
@@ -254,65 +285,106 @@ export function GameScreen() {
           <button type="button" className="primary-button apply-button" onClick={onApply} disabled={!canApply || isPourAnimating}>
             {phase === 'applying' ? '浸透中...' : '美容液を塗る'}
           </button>
-          {phase === 'serumSelected' && successStreak === 2 ? (
-            <p className="tempo-hint combo-ready">次SUCCESSで特別カットイン!</p>
-          ) : null}
+          <p className="tempo-hint apply-note-static">※診断結果はネタです</p>
         </>
-      ) : (
-        <>
-          <div className="result-stage-spacer" aria-hidden />
-          <p className="tempo-hint">今回の演出尺: 約{(estimatedMs / 1000).toFixed(1)}秒</p>
-        </>
-      )}
-      <div className="ambient-footer-effects" aria-hidden>
-        <span className="ambient-glow ambient-glow-a" />
-        <span className="ambient-glow ambient-glow-b" />
-        <span className="ambient-particle ambient-particle-a" />
-        <span className="ambient-particle ambient-particle-b" />
-        <span className="ambient-particle ambient-particle-c" />
-        <span className="ambient-reflection" />
-      </div>
-      <section className="achievement-panel glass-card" aria-label="実績">
-        <article className="achievement-item">
-          <strong>{totalDisasters}</strong>
-          <p className="micro-label">爆死回数</p>
-        </article>
-        <article className="achievement-item">
-          <strong>{successRate}%</strong>
-          <p className="micro-label">SUCCESS率</p>
-        </article>
-        <article className="achievement-item">
-          <strong>{poreCollapseIndex}%</strong>
-          <p className="micro-label">毛穴崩壊指数</p>
-        </article>
-      </section>
-      {unlockedTitleChips.length > 0 ? (
-        <div className="achievement-titles">
-          {unlockedTitleChips.map((title) => (
-            <span
-              key={title}
-              className={`achievement-title-chip ${latestUnlockedTitle === title ? 'latest-unlocked' : ''}`}
-              data-flavor={getTitleFlavor(title)}
-              title={getTitleFlavor(title)}
-            >
-              {title}
-            </span>
-          ))}
+      ) : null}
+      {phase !== 'resultShown' ? (
+        <div className="serum-comment-overlay-wrap" aria-live="polite">
+          <div
+            className={`serum-comment-panel ${selectedSerum ? `tone-${getSerumCommentTone(selectedSerum)}` : ''} ${selectedSerumComment?.isRare ? 'is-rare' : ''} ${showSsrHintPanel ? 'serum-comment-panel--ssr-hint' : ''}`.trim()}
+          >
+            {selectedSerumComment?.isRare ? <span className="rare-badge">RARE</span> : null}
+            <AnimatePresence mode="wait" initial={false}>
+              {phase === 'serumSelected' && selectedSerumComment ? (
+                <motion.p
+                  key={`${selectedSerum}-${commentAnimKey}`}
+                  className="tempo-hint apply-note live-comment"
+                  initial={{ opacity: 0, y: 6, filter: 'blur(2px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -4, filter: 'blur(2px)' }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                >
+                  {selectedSerumComment.text}
+                </motion.p>
+              ) : (
+                <p className="tempo-hint apply-note live-comment placeholder" key="placeholder">
+                  稀に<span className="ssr-hint-em">{'"SSR肌覚醒"'}</span>が発生します
+                </p>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       ) : null}
+      {phase !== 'resultShown' ? (
+        <>
+          <section className="achievement-panel glass-card" aria-label="実績">
+            <article className="achievement-item">
+              <strong>{totalDisasters}</strong>
+              <p className="micro-label">爆死回数</p>
+            </article>
+            <article className="achievement-item">
+              <strong>{successRate}%</strong>
+              <p className="micro-label">SUCCESS率</p>
+            </article>
+            <article className="achievement-item">
+              <strong>{poreCollapseIndex}%</strong>
+              <p className="micro-label">毛穴崩壊指数</p>
+            </article>
+          </section>
+          {unlockedTitleChips.length > 0 ? (
+            <div
+              className="achievement-titles"
+              style={{ '--chip-scale': achievementChipScale } as CSSProperties}
+            >
+              {unlockedTitleChips.map((title) => (
+                <span
+                  key={title}
+                  className={`achievement-title-chip ${getAchievementTitleChipClass(title)} ${latestUnlockedTitle === title ? 'latest-unlocked' : ''}`.trim()}
+                  data-flavor={getTitleFlavor(title)}
+                  title={getTitleFlavor(title)}
+                >
+                  {title}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </>
+      ) : null}
 
-      <OutcomeOverlay
-        resolution={resolution}
-        visible={phase === 'resultShown'}
-        totalScore={totalScore}
-        dailySkinCode={dailySkinCode}
-        dailySeed={dailySeed}
-        skinType={currentSkin}
-        dailyVariantClass={dailyVariantClass}
-        comboCutIn={comboCutIn}
-        successStreak={successStreak}
-        onRetry={retry}
-      />
+      {phase === 'resultShown' ? (
+        <div className="result-outcome-stack">
+          <ResultAffiliateStrip
+            pickSeed={`${runCount}-${resolution?.reactionKey ?? ''}-${selectedSerumComment?.isRare ? 'rare' : 'norm'}`}
+          />
+          <OutcomeOverlay
+            key={`${runCount}-${resolution?.reactionKey ?? 'none'}-${isRareResultScreen ? 'rare' : 'norm'}`}
+            resolution={resolution}
+            visible
+            dailySkinCode={dailySkinCode}
+            dailySeed={dailySeed}
+            skinType={currentSkin}
+            dailyVariantClass={dailyVariantClass}
+            comboCutIn={comboCutIn}
+            successStreak={successStreak}
+            rareResultActive={Boolean(selectedSerumComment?.isRare)}
+            onRetry={retry}
+          />
+        </div>
+      ) : (
+        <OutcomeOverlay
+          key="outcome-idle"
+          resolution={resolution}
+          visible={false}
+          dailySkinCode={dailySkinCode}
+          dailySeed={dailySeed}
+          skinType={currentSkin}
+          dailyVariantClass={dailyVariantClass}
+          comboCutIn={comboCutIn}
+          successStreak={successStreak}
+          rareResultActive={false}
+          onRetry={retry}
+        />
+      )}
       <AnimatePresence>
         {pourAnimation ? (
           <motion.div

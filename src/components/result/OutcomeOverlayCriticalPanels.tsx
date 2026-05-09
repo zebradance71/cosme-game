@@ -1,18 +1,28 @@
-import { motion } from 'framer-motion';
 import type { Resolution } from '../../core/game/types';
 import type { DisasterData, FailData } from './outcomeOverlayData';
+import { formatRoundDeltaForResult } from './roundScoreDisplay';
 
 interface PanelCommonProps {
   resultImagePath: string | null;
+  motionState?: 'active' | 'fading' | 'frozen';
 }
 
 interface FailPanelProps extends PanelCommonProps {
   failRank: string;
   failData: FailData;
   dailySeed: string;
+  animatedRoundDelta: number;
 }
 
-export function FailOutcomePanel({ resultImagePath, failRank, failData, dailySeed }: FailPanelProps) {
+export function FailOutcomePanel({
+  resultImagePath,
+  failRank,
+  failData,
+  dailySeed,
+  animatedRoundDelta,
+  motionState = 'active',
+}: FailPanelProps) {
+  const isActive = motionState === 'active';
   return (
     <>
       <div className="result-visual-frame fail-visual-frame">
@@ -27,13 +37,10 @@ export function FailOutcomePanel({ resultImagePath, failRank, failData, dailySee
           <span className="fail-particle fail-particle-d" />
         </div>
         {resultImagePath ? (
-          <motion.img
+          <img
             src={resultImagePath}
             alt="fail結果"
-            className="result-visual-image fail-visual-image"
-            initial={{ scale: 1.01, x: 0 }}
-            animate={{ scale: 1.03, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className={`result-visual-image fail-visual-image ${isActive ? 'is-motion-active' : 'is-motion-static'}`}
           />
         ) : (
           <div className="normal-fallback-art" />
@@ -44,15 +51,13 @@ export function FailOutcomePanel({ resultImagePath, failRank, failData, dailySee
         <p className="fail-rank-sub">SEVERE REACTION</p>
       </div>
       <div className="fail-score-box glass-card">
-        <span>SCORE LOSS</span>
-        <motion.strong
-          key={`${dailySeed}-${failData.scoreCrash}`}
-          initial={{ opacity: 0.4, y: 6 }}
-          animate={{ opacity: [0.6, 1, 0.85, 1], y: [2, -1, 1, 0], x: [0, -1, 1, 0] }}
-          transition={{ duration: 0.55, times: [0, 0.35, 0.7, 1] }}
+        <span>今回</span>
+        <strong
+          key={`${dailySeed}-${animatedRoundDelta}`}
+          className={isActive ? 'is-motion-active' : 'is-motion-static'}
         >
-          {failData.scoreCrash}
-        </motion.strong>
+          {formatRoundDeltaForResult(animatedRoundDelta)}
+        </strong>
       </div>
       <div className="fail-status-grid">
         {failData.stats.map((status) => (
@@ -70,9 +75,18 @@ interface DisasterPanelProps extends PanelCommonProps {
   disasterRank: string;
   disasterData: DisasterData;
   dailySeed: string;
+  animatedRoundDelta: number;
 }
 
-export function DisasterOutcomePanel({ resultImagePath, disasterRank, disasterData, dailySeed }: DisasterPanelProps) {
+export function DisasterOutcomePanel({
+  resultImagePath,
+  disasterRank,
+  disasterData,
+  dailySeed,
+  animatedRoundDelta,
+  motionState = 'active',
+}: DisasterPanelProps) {
+  const isActive = motionState === 'active';
   return (
     <>
       <div className="result-visual-frame disaster-visual-frame">
@@ -92,13 +106,10 @@ export function DisasterOutcomePanel({ resultImagePath, disasterRank, disasterDa
           <span className="disaster-particle disaster-particle-d" />
         </div>
         {resultImagePath ? (
-          <motion.img
+          <img
             src={resultImagePath}
             alt="disaster結果"
-            className="result-visual-image disaster-visual-image"
-            initial={{ scale: 1.02, x: 0 }}
-            animate={{ scale: 1.04, x: 0 }}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
+            className={`result-visual-image disaster-visual-image ${isActive ? 'is-motion-active' : 'is-motion-static'}`}
           />
         ) : (
           <div className="normal-fallback-art" />
@@ -109,15 +120,13 @@ export function DisasterOutcomePanel({ resultImagePath, disasterRank, disasterDa
         <p className="disaster-rank-sub">PORE BREAKDOWN EVENT</p>
       </div>
       <div className="disaster-score-box glass-card">
-        <span>SCORE BREAK</span>
-        <motion.strong
-          key={`${dailySeed}-${disasterData.scoreLabel}`}
-          initial={{ opacity: 0.4, scale: 0.94 }}
-          animate={{ opacity: [0.8, 1, 0.6, 1], scale: [1, 1.06, 0.98, 1], x: [0, -2, 2, 0] }}
-          transition={{ duration: 0.7, times: [0, 0.25, 0.6, 1] }}
+        <span>今回</span>
+        <strong
+          key={`${dailySeed}-${animatedRoundDelta}`}
+          className={isActive ? 'is-motion-active' : 'is-motion-static'}
         >
-          {disasterData.scoreLabel}
-        </motion.strong>
+          {formatRoundDeltaForResult(animatedRoundDelta)}
+        </strong>
       </div>
       <div className="disaster-status-grid">
         {disasterData.stats.map((status) => (
@@ -169,7 +178,7 @@ export function FallbackOutcomePanel({
       {dailySkinCode ? <p className="daily-code-tag">{dailySkinCode}</p> : null}
       <h3>{resolution.headline}</h3>
       <p>{resolution.detail}</p>
-      {successStreak > 0 ? <p className="streak-hint">連続SUCCESS: {successStreak}</p> : null}
+      {successStreak > 0 ? <p className="streak-hint">コンボ: {successStreak}</p> : null}
     </>
   );
 }

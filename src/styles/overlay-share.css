@@ -246,6 +246,13 @@
   text-overflow: ellipsis;
 }
 
+/* 商品 PR を 1 行に固定（グリッド内で幅を確実に制限） */
+.recovery-item-note--pr-line {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+}
+
 .recovery-item-button {
   border: 1px solid rgba(160, 187, 229, 0.65);
   border-radius: 999px;

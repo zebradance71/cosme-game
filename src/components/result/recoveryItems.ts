@@ -1,5 +1,6 @@
 export interface RecoveryItem {
   name: string;
+  /** カード用 PR 一言（1 行表示・長い場合は省略） */
   note: string;
   url: string;
   iconLabel: string;

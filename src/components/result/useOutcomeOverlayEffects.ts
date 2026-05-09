@@ -6,16 +6,21 @@ interface UseOutcomeOverlayEffectsParams {
   visible: boolean;
   resolution: Resolution | null;
   isSuccess: boolean;
+  /** レア EXCELLENT 向けの派手演出（フラッシュ・スクショ枠・スコアカウント）。非レア SUCCESS では false */
+  excellentPresentation: boolean;
   isDisaster: boolean;
-  totalScore: number;
 }
 
+/**
+ * 結果の数値は scoring の抽選が engine で適用された
+ * `resolution.scoreDelta`（= 上部 SCORE への実増減）を 0 からカウント表示する。
+ */
 export function useOutcomeOverlayEffects({
   visible,
   resolution,
   isSuccess,
+  excellentPresentation,
   isDisaster,
-  totalScore,
 }: UseOutcomeOverlayEffectsParams) {
   const [showShutterGuide, setShowShutterGuide] = useState(false);
   const [showVoiceCaption, setShowVoiceCaption] = useState(false);
@@ -24,7 +29,7 @@ export function useOutcomeOverlayEffects({
   const [showSuccessFlash, setShowSuccessFlash] = useState(false);
   const [autoFocusShotActive, setAutoFocusShotActive] = useState(false);
   const [showDisasterFragmentBreak, setShowDisasterFragmentBreak] = useState(false);
-  const [animatedScore, setAnimatedScore] = useState(totalScore);
+  const [animatedRoundDelta, setAnimatedRoundDelta] = useState(0);
 
   useEffect(() => {
     if (!visible || !resolution) {
@@ -50,37 +55,37 @@ export function useOutcomeOverlayEffects({
   }, [visible, resolution]);
 
   useEffect(() => {
-    if (!visible || !resolution || !isSuccess) {
-      setAnimatedScore(totalScore);
+    if (!visible || !resolution) {
+      setAnimatedRoundDelta(0);
       return;
     }
-    const start = Math.max(0, totalScore - Math.max(0, resolution.scoreDelta));
-    const end = totalScore;
-    const duration = 650;
+    const start = 0;
+    const end = resolution.scoreDelta;
+    const duration = Math.min(1100, 480 + Math.min(420, Math.abs(end) * 1.2));
     const startedAt = performance.now();
     let rafId = 0;
 
     const tick = (now: number) => {
       const progress = Math.min(1, (now - startedAt) / duration);
       const eased = 1 - (1 - progress) ** 3;
-      setAnimatedScore(Math.round(start + (end - start) * eased));
+      setAnimatedRoundDelta(Math.round(start + (end - start) * eased));
       if (progress < 1) rafId = requestAnimationFrame(tick);
     };
 
-    setAnimatedScore(start);
+    setAnimatedRoundDelta(start);
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [visible, resolution, totalScore, isSuccess]);
+  }, [visible, resolution]);
 
   useEffect(() => {
-    if (!visible || !resolution || !isSuccess) {
+    if (!visible || !resolution || !isSuccess || !excellentPresentation) {
       setShowSuccessFlash(false);
       return;
     }
     setShowSuccessFlash(true);
     const timer = window.setTimeout(() => setShowSuccessFlash(false), 420);
     return () => window.clearTimeout(timer);
-  }, [visible, resolution, isSuccess]);
+  }, [visible, resolution, isSuccess, excellentPresentation]);
 
   useEffect(() => {
     if (!visible || !resolution || !isDisaster) {
@@ -93,13 +98,13 @@ export function useOutcomeOverlayEffects({
   }, [visible, resolution, isDisaster]);
 
   useEffect(() => {
-    if (!visible || !resolution || !isSuccess) return;
+    if (!visible || !resolution || !isSuccess || !excellentPresentation) return;
     setAutoFocusShotActive(true);
     const timer = window.setTimeout(() => setAutoFocusShotActive(false), 1100);
     return () => window.clearTimeout(timer);
-  }, [visible, resolution, isSuccess]);
+  }, [visible, resolution, isSuccess, excellentPresentation]);
 
-  const autoFocusShot = visible && !!resolution && isSuccess && autoFocusShotActive;
+  const autoFocusShot = visible && !!resolution && isSuccess && excellentPresentation && autoFocusShotActive;
 
   return {
     showShutterGuide,
@@ -109,6 +114,6 @@ export function useOutcomeOverlayEffects({
     showSuccessFlash,
     autoFocusShot,
     showDisasterFragmentBreak,
-    animatedScore,
+    animatedRoundDelta,
   };
 }

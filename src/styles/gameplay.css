@@ -161,14 +161,244 @@
   color: var(--ink-soft);
 }
 
-.tempo-hint.combo-ready {
-  color: #5b3ee6;
+.serum-comment-overlay-wrap {
+  position: relative;
+  height: 52px;
+  z-index: 13;
+}
+
+.serum-comment-panel {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  margin-top: 0;
+  padding: 10px 12px;
+  min-height: 44px;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.28));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35) inset, 0 8px 16px rgba(52, 35, 130, 0.08);
+}
+
+.rare-badge {
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #fff8df;
+  background: linear-gradient(120deg, #9b6a00, #ffcf58, #9b6a00);
+  border: 1px solid rgba(255, 238, 186, 0.86);
+  box-shadow: 0 0 10px rgba(255, 214, 102, 0.62);
+}
+
+.apply-note-static {
+  margin: 2px 2px 0;
+}
+
+.tempo-hint.apply-note {
+  margin: 0 2px;
+}
+
+.live-comment {
   font-weight: 700;
+}
+
+.serum-comment-panel.is-rare {
+  border-color: rgba(255, 214, 112, 0.95);
+  background: linear-gradient(135deg, rgba(98, 66, 0, 0.96), rgba(195, 141, 24, 0.94), rgba(255, 223, 130, 0.96));
+  box-shadow: 0 0 16px rgba(255, 201, 77, 0.62), 0 0 0 1px rgba(255, 237, 190, 0.66) inset;
+}
+
+.serum-comment-panel.is-rare .live-comment {
+  color: #ffffff;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.65), 0 0 12px rgba(255, 244, 178, 0.72);
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0.85) 0%, #ffffff 35%, rgba(255, 244, 183, 0.88) 50%, #ffffff 65%, rgba(255, 255, 255, 0.85) 100%);
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: rareTextShine 1.9s linear infinite;
+}
+
+.serum-comment-panel.is-rare.tone-retinol .live-comment,
+.serum-comment-panel.is-rare.tone-ceramide .live-comment,
+.serum-comment-panel.is-rare.tone-aha_bha .live-comment {
+  color: #ffffff;
+}
+
+.serum-comment-panel.tone-retinol {
+  border-color: rgba(255, 115, 115, 0.55);
+  box-shadow: 0 0 18px rgba(255, 112, 112, 0.24), 0 0 0 1px rgba(255, 175, 175, 0.4) inset;
+}
+
+.serum-comment-panel.tone-retinol .live-comment {
+  color: #b54747;
+}
+
+.serum-comment-panel.tone-ceramide {
+  border-color: rgba(127, 176, 255, 0.55);
+  box-shadow: 0 0 18px rgba(116, 176, 255, 0.24), 0 0 0 1px rgba(170, 211, 255, 0.4) inset;
+}
+
+.serum-comment-panel.tone-ceramide .live-comment {
+  color: #2d5f9d;
+}
+
+.serum-comment-panel.tone-aha_bha {
+  border-color: rgba(255, 116, 190, 0.55);
+  box-shadow: 0 0 18px rgba(255, 92, 188, 0.26), 0 0 0 1px rgba(255, 175, 224, 0.4) inset;
+}
+
+.serum-comment-panel.tone-aha_bha .live-comment {
+  color: #b5397a;
+}
+
+.serum-comment-panel .placeholder {
+  opacity: 0.55;
+}
+
+/* 美容液未選択時の SSR 説明: カードを目立たせる */
+.serum-comment-panel--ssr-hint {
+  padding: 12px 14px;
+  border: 1px solid rgba(212, 165, 55, 0.72);
+  background: linear-gradient(165deg, rgba(255, 252, 244, 0.92), rgba(255, 236, 200, 0.55), rgba(255, 248, 230, 0.88));
+  box-shadow:
+    0 0 0 1px rgba(255, 236, 200, 0.55) inset,
+    0 0 20px rgba(255, 190, 70, 0.28),
+    0 10px 22px rgba(80, 55, 20, 0.12);
+}
+
+.serum-comment-panel--ssr-hint .placeholder {
+  opacity: 1;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #4a3d28;
+}
+
+.serum-comment-panel--ssr-hint .ssr-hint-em {
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #8a5a08;
+  text-shadow: 0 0 12px rgba(255, 200, 80, 0.45);
+}
+
+.serum-comment-panel.is-rare::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 10%, rgba(255, 248, 216, 0.45) 50%, rgba(255, 255, 255, 0) 90%);
+  transform: translateX(-110%);
+  animation: rarePanelSweep 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes rareTextShine {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -100% 50%;
+  }
+}
+
+@keyframes rarePanelSweep {
+  0% {
+    transform: translateX(-110%);
+  }
+  100% {
+    transform: translateX(110%);
+  }
 }
 
 .result-stage-spacer {
   width: 100%;
   min-height: clamp(340px, 54vh, 520px);
+}
+
+/* 結果画面: HUD 下〜下端。レア時は上にアフィ、下に結果オーバーレイ（通常も同じスタック） */
+.game-shell.result-mode .result-outcome-stack {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 6px;
+  padding-bottom: calc(2px + env(safe-area-inset-bottom, 0px));
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.result-affiliate-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 本番 RecoverySuggestionCard をレア帯用に圧縮（はみ出し防止） */
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-suggestion-card {
+  margin: 0;
+  padding: 5px 7px 5px 6px;
+  border-radius: 11px;
+  box-shadow: 0 4px 12px rgba(45, 64, 108, 0.12);
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-kicker {
+  margin: 0 0 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  color: rgba(108, 128, 170, 0.88);
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-row {
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  column-gap: 6px;
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-thumb-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-thumb-fallback {
+  font-size: 12px;
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-name {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-note {
+  margin: 1px 0 0;
+  font-size: 8px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-button {
+  padding: 2px 6px;
+  min-width: 40px;
+  font-size: 8px;
+  letter-spacing: 0.06em;
 }
 
 .hud-recovery-floating {
@@ -185,99 +415,452 @@
   margin: 0;
 }
 
+.game-shell.result-mode .outcome-overlay {
+  top: 52px;
+  bottom: calc(2px + env(safe-area-inset-bottom, 0px));
+  max-height: none;
+  overflow: hidden;
+}
+
+.game-shell.result-mode .game-hud {
+  flex-shrink: 0;
+  gap: 5px;
+}
+
+.game-shell.result-mode .glass-pill {
+  padding: 5px 9px;
+}
+
+.game-shell.result-mode .glass-pill > span {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.game-shell.result-mode .glass-pill > strong {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Sticky retry は overflow:hidden と相性が悪く、グリッドと重なるため結果モードでは通常フローに戻す */
+.game-shell.result-mode .outcome-overlay.success .retry-button {
+  position: relative;
+  bottom: auto;
+  margin-top: 10px;
+  z-index: 1;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  gap: 4px;
+  padding-bottom: 6px;
+}
+
+/* スタック内オーバーレイ: 絶対配置をやめ下端寄せ（レア・通常共通） */
+.game-shell.result-mode .result-outcome-stack .outcome-overlay {
+  position: relative;
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: auto;
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+  align-self: stretch;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* excellent-only の !important padding より優先して、縦スペースをイラストへ */
+.game-shell.result-mode .outcome-overlay.rare-outcome.excellent-only {
+  padding: 7px 8px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  gap: 4px;
+}
+
+/* スクロールなし: 余白はイラスト枠が縮み、画像は contain で全体表示 */
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-visual-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-bottom: 0;
+  aspect-ratio: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-image {
+  flex: 0 1 auto;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center center;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-rank-block {
+  flex-shrink: 0;
+  margin-top: 6px;
+  margin-bottom: 2px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-rank-main {
+  font-size: 17px;
+  letter-spacing: 0.1em;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-rank-sub {
+  font-size: 7px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box {
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  padding: 4px 7px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box span {
+  font-size: 8px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box strong {
+  font-size: 17px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-status-grid {
+  flex-shrink: 0;
+  gap: 3px;
+  margin-bottom: 2px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-status-card {
+  padding: 3px 6px;
+  border-radius: 10px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-status-card span {
+  font-size: 8px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-status-card strong {
+  font-size: 13px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-combo-tag {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 9px;
+}
+
+.game-shell.result-mode .outcome-overlay.rare-outcome .retry-button {
+  flex-shrink: 0;
+  margin-top: 8px;
+  padding: 10px 14px;
+}
+
+/* NORMAL: MELTDOWN / FAIL と同じ縦フロー（画像エリアをスタック内で縦に伸ばす）。配色は従来どおり地味 */
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal {
+  gap: 4px;
+  padding-bottom: 6px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-visual-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-bottom: 0;
+  aspect-ratio: unset;
+  position: relative;
+  box-sizing: border-box;
+  padding: 4px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .result-visual-image.normal-visual-image {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center center;
+  position: relative;
+  z-index: 6;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-rank-block {
+  flex-shrink: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-rank-main {
+  font-size: 17px;
+  letter-spacing: 0.1em;
+  text-shadow: none;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-rank-sub {
+  margin: 4px 0 0;
+  font-size: 7px;
+  letter-spacing: 0.14em;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box {
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  padding: 6px 9px;
+  border-radius: 12px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box span {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box strong {
+  font-size: clamp(18px, 4.8vw, 24px);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-grid {
+  flex-shrink: 0;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-card {
+  padding: 5px 8px;
+  border-radius: 10px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-card span {
+  font-size: 9px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-card strong {
+  font-size: 13px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-combo-tag {
+  flex-shrink: 0;
+  margin: 0 0 2px;
+  font-size: 9px;
+  text-align: right;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .retry-button {
+  flex-shrink: 0;
+  margin-top: 4px;
+  padding: 10px 14px;
+}
+
+/* 非レア SUCCESS: MELTDOWN / FAIL と同じ縦フロー（画像 flex 伸長 → 見出し → スコア帯 → 2x2）。カードは濃色＋金ネオン */
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) {
+  gap: 4px;
+  padding-bottom: 6px;
+  background: linear-gradient(165deg, rgba(22, 16, 8, 0.97), rgba(38, 28, 12, 0.96), rgba(28, 20, 10, 0.98));
+  border: 1px solid rgba(200, 155, 60, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(255, 220, 140, 0.12) inset,
+    0 12px 28px rgba(8, 5, 2, 0.55);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-visual-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-bottom: 0;
+  aspect-ratio: unset;
+  box-sizing: border-box;
+  padding: 4px;
+  background: linear-gradient(165deg, #120e08 0%, #1f170c 48%, #141008 100%);
+  border: 1px solid rgba(180, 140, 55, 0.38);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 200, 90, 0.08) inset;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-aura {
+  opacity: 0.35;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-rank-block {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-grid {
+  flex-shrink: 0;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .result-visual-image.success-visual-image {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center center;
+  position: relative;
+  z-index: 6;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-rank-main {
+  margin: 0;
+  font-size: clamp(20px, 5.2vw, 28px);
+  letter-spacing: 0.08em;
+  color: #ffe8a8;
+  text-shadow:
+    0 0 8px rgba(255, 210, 90, 0.95),
+    0 0 20px rgba(255, 180, 60, 0.65),
+    0 0 32px rgba(200, 120, 30, 0.45);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-rank-sub {
+  margin: 4px 0 0;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  color: rgba(255, 215, 140, 0.82);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box {
+  margin-bottom: 2px;
+  padding: 6px 9px;
+  border-radius: 12px;
+  color: rgba(255, 236, 200, 0.88);
+  background: linear-gradient(155deg, rgba(48, 38, 18, 0.94), rgba(32, 26, 12, 0.92));
+  border: 1px solid rgba(200, 155, 70, 0.45);
+  box-shadow: 0 0 0 1px rgba(255, 210, 120, 0.08) inset;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box span {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box strong {
+  font-size: clamp(18px, 4.8vw, 24px);
+  color: #ffd875;
+  text-shadow: 0 0 12px rgba(255, 200, 80, 0.75);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-grid {
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-card {
+  padding: 5px 8px;
+  border-radius: 10px;
+  color: rgba(255, 235, 200, 0.9);
+  background: linear-gradient(152deg, rgba(42, 34, 16, 0.92), rgba(28, 22, 10, 0.9));
+  border: 1px solid rgba(185, 145, 55, 0.38);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-card span {
+  font-size: 9px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-card strong {
+  font-size: 13px;
+  color: #ffdf98;
+  text-shadow: 0 0 8px rgba(255, 190, 70, 0.45);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-combo-tag {
+  flex-shrink: 0;
+  margin: 0 0 2px;
+  font-size: 9px;
+  text-align: right;
+  color: rgba(255, 215, 150, 0.9);
+  text-shadow: 0 0 8px rgba(255, 180, 60, 0.4);
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .retry-button {
+  flex-shrink: 0;
+  margin-top: 4px;
+  padding: 10px 14px;
+}
+
+/* MEH / FAIL / DISASTER: 16:10 固定をやめ、スタック内の余白まで画像エリアを縦に伸ばす */
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad {
+  gap: 4px;
+  padding-bottom: 6px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-visual-frame,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-visual-frame,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-bottom: 0;
+  aspect-ratio: unset;
+  box-sizing: border-box;
+  padding: 4px;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-rank-block,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-status-grid,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-rank-block,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-score-box,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-status-grid,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-rank-block,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-status-grid {
+  flex-shrink: 0;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .result-visual-image.disaster-visual-image,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .result-visual-image.meh-visual-image,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .result-visual-image.fail-visual-image {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center center;
+  position: relative;
+  z-index: 6;
+}
+
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .retry-button,
+.game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .retry-button {
+  flex-shrink: 0;
+  margin-top: 4px;
+  padding: 10px 14px;
+}
+
 @media (max-width: 420px) {
   .hud-recovery-floating {
     top: 72px;
     left: 14px;
     right: 14px;
   }
-}
 
-.ambient-footer-effects {
-  position: relative;
-  width: 100%;
-  min-height: 120px;
-  margin-top: 2px;
-  border-radius: 18px;
-  overflow: hidden;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(212, 239, 255, 0.2)),
-    radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.5), transparent 40%),
-    linear-gradient(160deg, rgba(241, 246, 255, 0.38), rgba(220, 239, 255, 0.26));
-  border: 1px solid rgba(255, 255, 255, 0.55);
-}
+  .game-shell.result-mode .outcome-overlay {
+    top: 48px;
+    bottom: calc(2px + env(safe-area-inset-bottom, 0px));
+  }
 
-.ambient-glow,
-.ambient-particle,
-.ambient-reflection {
-  position: absolute;
-}
-
-.ambient-glow {
-  width: 140px;
-  height: 140px;
-  border-radius: 999px;
-  filter: blur(16px);
-}
-
-.ambient-glow-a {
-  left: -24px;
-  bottom: -52px;
-  background: rgba(188, 230, 255, 0.35);
-  animation: ambientGlowFloat 9s ease-in-out infinite;
-}
-
-.ambient-glow-b {
-  right: -30px;
-  bottom: -58px;
-  background: rgba(218, 206, 255, 0.3);
-  animation: ambientGlowFloat 11s ease-in-out infinite reverse;
-}
-
-.ambient-particle {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 12px rgba(180, 230, 255, 0.6);
-  animation: ambientParticleDrift 7s ease-in-out infinite;
-}
-
-.ambient-particle-a {
-  left: 22%;
-  bottom: 16px;
-}
-
-.ambient-particle-b {
-  left: 54%;
-  bottom: 12px;
-  animation-delay: 1.4s;
-}
-
-.ambient-particle-c {
-  left: 76%;
-  bottom: 20px;
-  animation-delay: 2.4s;
-}
-
-.ambient-reflection {
-  top: -22px;
-  left: -18%;
-  width: 58%;
-  height: 54px;
-  background: linear-gradient(
-    100deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.56) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: rotate(-6deg);
-  animation: ambientSweep 8.5s ease-in-out infinite;
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay {
+    top: auto;
+    bottom: auto;
+  }
 }
 
 .achievement-panel {
-  margin-top: 8px;
+  margin-top: 2px;
   padding: 10px;
   border-radius: 16px;
   display: grid;

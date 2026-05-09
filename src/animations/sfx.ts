@@ -83,9 +83,15 @@ function fallbackBeep(outcome: Outcome, rate: number): void {
   osc.stop(ctx.currentTime + dur);
 }
 
-export async function playOutcomeSfx(outcome: Outcome, variantClass?: string, reactionKey?: string): Promise<void> {
+export async function playOutcomeSfx(
+  outcome: Outcome,
+  variantClass?: string,
+  reactionKey?: string,
+  rareResultActive?: boolean,
+): Promise<void> {
   const rate = variantRate(variantClass);
-  const filePlayed = await playFileWithRate(resolveSfxPath(outcome, reactionKey), rate);
+  const path = rareResultActive ? '/assets/audio/sfx/rare-jajaan3.mp3' : resolveSfxPath(outcome, reactionKey);
+  const filePlayed = await playFileWithRate(path, rate);
   if (!filePlayed) {
     fallbackBeep(outcome, rate);
   }

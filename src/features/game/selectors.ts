@@ -70,7 +70,7 @@ export function buildShareText({
     `選択: ${serumLabel}`,
     `判定: ${resolution.headline}`,
     `スコア: ${totalScore}`,
-    `連続SUCCESS: ${successStreak}`,
+    `コンボ: ${successStreak}`,
     comboLine,
     `#美容液演出ゲーム #スキンケアあるある ${comboTag}`.trim(),
   ]

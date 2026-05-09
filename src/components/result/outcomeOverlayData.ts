@@ -11,12 +11,10 @@ export interface OverlayStat {
 }
 
 export interface FailData {
-  scoreCrash: number;
   stats: OverlayStat[];
 }
 
 export interface DisasterData {
-  scoreLabel: string;
   stats: OverlayStat[];
 }
 
@@ -45,7 +43,7 @@ export function pickVoiceCaption(seed: string, outcome: 'normal' | 'success' | '
   return candidates[index] ?? '';
 }
 
-export function buildNormalMetrics(seed: string, skinType: SkinType | null): SkinMetric[] {
+export function buildNormalMetrics(seed: string, skinType: SkinType | null, roundScore = 0): SkinMetric[] {
   const bases: SkinMetric[] = [
     { label: '水分', value: 84 },
     { label: 'キメ', value: 86 },
@@ -61,8 +59,8 @@ export function buildNormalMetrics(seed: string, skinType: SkinType | null): Ski
   const bias = skinType ? typeBiasMap[skinType] : [0, 0, 0, 0];
 
   return bases.map((base, index) => {
-    const mix = hashString(`${seed || 'base'}-${base.label}-${skinType ?? 'none'}`);
-    const swing = (mix % 9) - 4;
+    const mix = hashString(`${seed || 'base'}-${base.label}-${skinType ?? 'none'}-n${roundScore}`);
+    const swing = (mix % 9) - 4 + Math.min(2, roundScore);
     return {
       ...base,
       value: clampMetric(base.value + bias[index] + swing),
@@ -76,10 +74,23 @@ export function buildSuccessRank(seed: string): string {
   return ranks[pick] ?? 'GLOWBURST';
 }
 
-export function buildSuccessStats(seed: string): OverlayStat[] {
-  const glow = 260 + (hashString(`${seed}-glow`) % 81);
-  const poreCut = 90 + (hashString(`${seed}-pore`) % 8);
-  const comboLv = 90 + (hashString(`${seed}-lv`) % 10);
+export function buildRareSuccessStats(scoreDelta: number): OverlayStat[] {
+  const glow = Math.min(999, 260 + (scoreDelta % 740));
+  const pore = Math.min(99, 35 + (scoreDelta % 65));
+  const aura = 180 + (scoreDelta % 500);
+  return [
+    { label: '輝度', value: `${glow}` },
+    { label: '毛穴', value: `-${pore}%` },
+    { label: 'オーラ', value: `+${aura}%` },
+    { label: '格', value: scoreDelta >= 1500 ? 'EX+' : 'EX' },
+  ];
+}
+
+export function buildSuccessStats(seed: string, scoreDelta: number): OverlayStat[] {
+  const t = (scoreDelta - 40) / 80;
+  const glow = 240 + Math.round(100 * t) + (hashString(`${seed}-glow-${scoreDelta}`) % 61);
+  const poreCut = 88 + Math.round(7 * t) + (hashString(`${seed}-pore-${scoreDelta}`) % 10);
+  const comboLv = 88 + Math.round(12 * t) + (hashString(`${seed}-lv-${scoreDelta}`) % 10);
   return [
     { label: '水分', value: 'MAX' },
     { label: '毛穴', value: `-${poreCut}%` },
@@ -94,11 +105,12 @@ export function buildMehRank(seed: string): string {
   return ranks[pick] ?? 'ALMOST';
 }
 
-export function buildMehStats(seed: string): OverlayStat[] {
-  const redness = 14 + (hashString(`${seed}-meh-red`) % 12);
-  const pores = 4 + (hashString(`${seed}-meh-pore`) % 8);
-  const hydrationLoss = 6 + (hashString(`${seed}-meh-hyd`) % 8);
-  const inflameLevel = ['LOW', 'L-LOW', 'LOW+'][hashString(`${seed}-meh-inf`) % 3] ?? 'LOW';
+export function buildMehStats(seed: string, scoreDelta: number): OverlayStat[] {
+  const loss = Math.abs(scoreDelta);
+  const redness = 14 + (loss % 12) + (hashString(`${seed}-meh-red-${scoreDelta}`) % 8);
+  const pores = 4 + (loss % 8) + (hashString(`${seed}-meh-pore-${scoreDelta}`) % 6);
+  const hydrationLoss = 6 + (loss % 8) + (hashString(`${seed}-meh-hyd-${scoreDelta}`) % 6);
+  const inflameLevel = ['LOW', 'L-LOW', 'LOW+'][hashString(`${seed}-meh-inf-${scoreDelta}`) % 3] ?? 'LOW';
   return [
     { label: '赤み', value: `+${redness}%` },
     { label: '毛穴', value: `+${pores}%` },
@@ -113,13 +125,12 @@ export function buildFailRank(seed: string): string {
   return ranks[pick] ?? 'CRITICAL';
 }
 
-export function buildFailStats(seed: string): FailData {
-  const redness = 380 + (hashString(`${seed}-fail-red`) % 61);
-  const hydrationLoss = 72 + (hashString(`${seed}-fail-hyd`) % 15);
-  const tempTag = ['MAX', 'MAX+', 'OVER MAX'][hashString(`${seed}-fail-temp`) % 3] ?? 'MAX';
-  const scoreCrash = -(180 + (hashString(`${seed}-fail-score`) % 141));
+export function buildFailStats(seed: string, scoreDelta: number): FailData {
+  const loss = Math.abs(scoreDelta);
+  const redness = 360 + (loss * 8) % 80 + (hashString(`${seed}-fail-red-${scoreDelta}`) % 40);
+  const hydrationLoss = 65 + (loss % 20) + (hashString(`${seed}-fail-hyd-${scoreDelta}`) % 12);
+  const tempTag = ['MAX', 'MAX+', 'OVER MAX'][hashString(`${seed}-fail-temp-${scoreDelta}`) % 3] ?? 'MAX';
   return {
-    scoreCrash,
     stats: [
       { label: '赤み', value: `+${redness}%` },
       { label: '炎症', value: 'HIGH' },
@@ -135,17 +146,15 @@ export function buildDisasterRank(seed: string): string {
   return ranks[pick] ?? 'DISASTER';
 }
 
-export function buildDisasterData(seed: string): DisasterData {
-  const scoreLabelPool = ['-999', '-1200', '-404 SKIN'] as const;
-  const scoreLabel = scoreLabelPool[hashString(`${seed}-disaster-score`) % scoreLabelPool.length] ?? '-999';
+export function buildDisasterData(seed: string, scoreDelta: number): DisasterData {
+  const loss = Math.abs(scoreDelta);
+  const poreAmp = 400 + (loss % 400) + (hashString(`${seed}-dis-pore-${scoreDelta}`) % 200);
   return {
-    scoreLabel,
     stats: [
-      { label: '毛穴', value: '+999%' },
-      { label: '炎症', value: 'CRITICAL' },
-      { label: '水分', value: 'LOST' },
-      { label: '肌構造', value: 'ERROR' },
-      { label: '皮脂', value: 'OVERFLOW' },
+      { label: '毛穴', value: `+${poreAmp}%` },
+      { label: '炎症', value: loss >= 180 ? 'CRITICAL+' : 'CRITICAL' },
+      { label: '水分', value: loss >= 200 ? 'LOST' : 'CRITICAL LOW' },
+      { label: '肌構造', value: loss >= 220 ? 'ERROR' : 'UNSTABLE' },
     ],
   };
 }

@@ -35,6 +35,8 @@ export interface Resolution {
   reactionKey: string;
   headline: string;
   detail: string;
+  /** 加算の結果が 0 になり、スタートスコアへ戻したラウンド */
+  scoreResetFromZero?: boolean;
 }
 
 export interface GameState {

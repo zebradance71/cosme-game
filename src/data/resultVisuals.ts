@@ -1,7 +1,16 @@
 import type { Outcome } from '../core/game/types';
 
 export type ResultPatternKey = 'normal' | 'success' | 'meh' | 'fail' | 'disaster';
-export type ResultPatternImage = string | string[] | null;
+export type ResultPatternImage = string | readonly string[] | null;
+export const rareResultImagePool: readonly string[] = [
+  '/assets/images/results/rare/ssr-mirror-error.png',
+  '/assets/images/results/rare/ssr-cosmic-skin.png',
+  '/assets/images/results/rare/ssr-devil-mode.png',
+  '/assets/images/results/rare/ssr-glass-skin.png',
+  '/assets/images/results/rare/ssr-over-hydration.png',
+  '/assets/images/results/rare/ssr-ascended.png',
+  '/assets/images/results/rare/ssr-angel-filter.png',
+] as const;
 
 export const resultPatternImageMap: Record<ResultPatternKey, ResultPatternImage> = {
   normal: '/assets/images/results/pattern-1-normal.png',
@@ -32,13 +41,13 @@ export function pickResultImage(image: ResultPatternImage): string | null {
   if (!image) {
     return null;
   }
-  if (Array.isArray(image)) {
-    if (image.length === 0) {
-      return null;
-    }
-    return image[Math.floor(Math.random() * image.length)] ?? null;
+  if (typeof image === 'string') {
+    return image;
   }
-  return image;
+  if (image.length === 0) {
+    return null;
+  }
+  return image[Math.floor(Math.random() * image.length)] ?? null;
 }
 
 export const outcomeToPatternKey: Record<Outcome, ResultPatternKey> = {

@@ -1,5 +1,5 @@
 import { effectCopies } from '../../data/effects';
-import { scoreOutcome } from './scoring';
+import { rollScoreDelta } from './scoring';
 import type { Resolution, SerumType, SkinType } from './types';
 
 interface OutcomeWeights {
@@ -100,9 +100,22 @@ function pickVariant(outcome: keyof OutcomeWeights) {
   return variants[Math.floor(Math.random() * variants.length)] ?? variants[0];
 }
 
+/** レア補正など: SUCCESS のランダム台詞・中間 scoreDelta（レア加算前の仮値としても使う） */
+export function buildRandomSuccessResolution(): Resolution {
+  const variant = pickVariant('success');
+  const scoreDelta = rollScoreDelta('success');
+  return {
+    outcome: 'success',
+    scoreDelta,
+    reactionKey: variant.reactionKey,
+    headline: variant.headline,
+    detail: variant.detail,
+  };
+}
+
 export function resolveSerumEffect(skin: SkinType, serum: SerumType): Resolution {
   const outcome = weightedPick(buildOutcomeWeights(skin, serum));
-  const scoreDelta = scoreOutcome(outcome);
+  const scoreDelta = rollScoreDelta(outcome);
   const variant = pickVariant(outcome);
 
   return {

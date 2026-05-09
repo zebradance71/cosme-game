@@ -10,6 +10,23 @@
   text-shadow: 0 0 12px rgba(255, 79, 122, 0.8);
 }
 
+.fail-visual-image.is-motion-static {
+  transform: scale(1.03);
+}
+
+.fail-visual-image.is-motion-active {
+  animation: failImageSettleIn 0.8s ease-out forwards;
+}
+
+.fail-score-box strong.is-motion-static {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.fail-score-box strong.is-motion-active {
+  animation: failScorePopIn 0.55s ease-out;
+}
+
 .fail-status-card {
   color: #ffc3d5;
   background: linear-gradient(152deg, rgba(55, 18, 35, 0.92), rgba(70, 20, 49, 0.86));
@@ -30,6 +47,14 @@
 
 .disaster-visual-image {
   filter: saturate(0.98) brightness(0.88) contrast(1.06);
+}
+
+.disaster-visual-image.is-motion-static {
+  transform: scale(1.04);
+}
+
+.disaster-visual-image.is-motion-active {
+  animation: disasterImageSettleIn 0.9s ease-out forwards;
 }
 
 .disaster-rgb-shift {
@@ -147,6 +172,15 @@
     0 0 24px rgba(170, 72, 255, 0.6);
 }
 
+.disaster-score-box strong.is-motion-static {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.disaster-score-box strong.is-motion-active {
+  animation: disasterScorePopIn 0.7s ease-out;
+}
+
 .disaster-status-card {
   color: #e5d3fb;
   background: linear-gradient(152deg, rgba(27, 16, 41, 0.92), rgba(42, 17, 46, 0.88));
@@ -155,6 +189,62 @@
 
 .disaster-status-card strong {
   color: #f3dfff;
+}
+
+@keyframes failImageSettleIn {
+  from {
+    transform: scale(1.01);
+  }
+  to {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes failScorePopIn {
+  0% {
+    opacity: 0.6;
+    transform: translate3d(0, 2px, 0);
+  }
+  35% {
+    opacity: 1;
+    transform: translate3d(-1px, -1px, 0);
+  }
+  70% {
+    opacity: 0.85;
+    transform: translate3d(1px, 1px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes disasterImageSettleIn {
+  from {
+    transform: scale(1.02);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes disasterScorePopIn {
+  0% {
+    opacity: 0.8;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  25% {
+    opacity: 1;
+    transform: translate3d(-2px, 0, 0) scale(1.06);
+  }
+  60% {
+    opacity: 0.6;
+    transform: translate3d(2px, 0, 0) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
 .success-visual-frame {
@@ -179,6 +269,16 @@
 
 .success-visual-image {
   filter: saturate(1.16) brightness(1.11) contrast(1.04);
+}
+
+.success-visual-image.is-motion-static {
+  transform: translate3d(0, 0, 0) scale(1.08);
+}
+
+.success-visual-image.is-motion-active {
+  animation:
+    successImageScalePulse 5.4s ease-in-out infinite alternate,
+    successImageFloatBob 4s ease-in-out infinite;
 }
 
 .success-aura {
@@ -268,6 +368,17 @@
   animation-delay: 2.2s;
 }
 
+.success-score-box strong.is-motion-static,
+.rare-excellent-score-box strong.is-motion-static {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.success-score-box strong.is-motion-active,
+.rare-excellent-score-box strong.is-motion-active {
+  animation: successScorePopIn 0.62s ease-out;
+}
+
 .success-rank-block {
   margin-top: 2px;
 }
@@ -280,4 +391,106 @@
     0 0 8px rgba(255, 239, 190, 0.9),
     0 0 16px rgba(255, 220, 120, 0.72);
   animation: rankShine 2.2s ease-in-out infinite;
+}
+
+.normal-visual-image.is-motion-static {
+  transform: scale(1.04);
+}
+
+.normal-visual-image.is-motion-active {
+  animation: normalImageScalePulse 6s ease-in-out infinite alternate;
+}
+
+.meh-visual-image.is-motion-static {
+  transform: translate3d(0, 0, 0) scale(1.04);
+}
+
+.meh-visual-image.is-motion-active {
+  animation:
+    mehImageScalePulse 6.2s ease-in-out infinite alternate,
+    mehImageFloatBob 3.4s ease-in-out infinite;
+}
+
+.rare-excellent-image.is-motion-static {
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.rare-excellent-image.is-motion-active {
+  animation: rareExcellentImageFloatBob 4s ease-in-out infinite;
+}
+
+@keyframes normalImageScalePulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.04);
+  }
+}
+
+@keyframes successImageScalePulse {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+}
+
+@keyframes successImageFloatBob {
+  0%,
+  100% {
+    transform: translate3d(0, -3px, 0) scale(1.08);
+  }
+  50% {
+    transform: translate3d(0, 4px, 0) scale(1.08);
+  }
+}
+
+@keyframes mehImageScalePulse {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.01);
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1.04);
+  }
+}
+
+@keyframes mehImageFloatBob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.04);
+  }
+  50% {
+    transform: translate3d(0, 2px, 0) scale(1.04);
+  }
+}
+
+@keyframes rareExcellentImageFloatBob {
+  0%,
+  100% {
+    transform: translate3d(0, -1px, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, 1px, 0) scale(1);
+  }
+}
+
+@keyframes successScorePopIn {
+  0% {
+    opacity: 0.4;
+    transform: translate3d(0, 8px, 0) scale(0.86);
+  }
+  38% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0) scale(1.14);
+  }
+  72% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }

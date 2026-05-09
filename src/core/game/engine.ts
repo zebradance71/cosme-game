@@ -2,10 +2,13 @@ import { skinProfiles } from '../../data/skins';
 import { resolveSerumEffect } from './rules';
 import type { GameState, SerumType } from './types';
 
+/** セッション開始・0 リセット時のスコア */
+export const STARTING_SCORE = 300;
+
 export const initialGameState: GameState = {
   phase: 'idle',
   runCount: 0,
-  totalScore: 0,
+  totalScore: STARTING_SCORE,
   currentSkin: null,
   selectedSerum: null,
   resolution: null,
@@ -90,12 +93,25 @@ export function resolveRound(state: GameState): GameState {
   }
 
   const resolution = resolveSerumEffect(state.currentSkin, state.selectedSerum);
+  const rawTotal = state.totalScore + resolution.scoreDelta;
+  let totalScore = Math.max(0, rawTotal);
+  let scoreResetFromZero = false;
+  if (totalScore === 0) {
+    totalScore = STARTING_SCORE;
+    scoreResetFromZero = true;
+  }
+  /** このラウンドで HUD に効いた増減（結果画面「今回」も同じ値を表示） */
+  const appliedDelta = totalScore - state.totalScore;
 
   return {
     ...state,
     phase: 'resolved',
-    totalScore: state.totalScore + resolution.scoreDelta,
-    resolution,
+    totalScore,
+    resolution: {
+      ...resolution,
+      scoreDelta: appliedDelta,
+      ...(scoreResetFromZero ? { scoreResetFromZero: true } : {}),
+    },
   };
 }
 
