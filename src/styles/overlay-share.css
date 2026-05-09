@@ -289,40 +289,54 @@
 }
 
 .voice-caption {
-  margin: 6px 0 0;
-  width: fit-content;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  animation: voicePop 0.6s ease-out;
+  margin: 0;
+  width: auto;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .voice-caption.daily-variant-1 {
-  font-family: 'Segoe Script', 'Comic Sans MS', cursive;
-  letter-spacing: 0.02em;
-  transform: rotate(-2deg);
+  letter-spacing: inherit;
 }
 
 .voice-caption.daily-variant-2 {
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  letter-spacing: 0.08em;
-  transform: rotate(1deg);
+  letter-spacing: inherit;
 }
 
 .voice-caption.success {
   color: #0f766e;
-  text-shadow: 0 0 10px rgba(94, 234, 212, 0.6);
 }
 
 .voice-caption.bad {
   color: #b45309;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.52);
 }
 
 .voice-caption.disaster {
   color: #9f1239;
-  text-shadow: 0 0 10px rgba(251, 113, 133, 0.55);
 }
+
+.voice-caption.rank-comment {
+  display: block;
+  width: 100%;
+  text-transform: none;
+}
+
+/* EXCELLENT の一言を通常 SUCCESS の見た目と同一にする */
+.outcome-overlay.rare-outcome .success-rank-main.voice-caption.rank-comment-success {
+  margin: 0;
+  font-size: clamp(20px, 5.2vw, 28px);
+  letter-spacing: 0.08em;
+  color: #fffdf4;
+  background: linear-gradient(180deg, #ffffff 0%, #fffdf4 52%, #f8e5b2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 8px rgba(255, 210, 90, 0.95),
+    0 0 20px rgba(255, 180, 60, 0.65),
+    0 0 32px rgba(200, 120, 30, 0.45);
+}
+
 
 .daily-code-tag {
   margin: 6px 0 0;

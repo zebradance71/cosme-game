@@ -22,7 +22,7 @@ import {
   buildRareSuccessStats,
   buildSuccessRank,
   buildSuccessStats,
-  buildSuccessSubtitle,
+  type RankCommentKey,
 } from './outcomeOverlayData';
 import { useOutcomeOverlayEffects } from './useOutcomeOverlayEffects';
 
@@ -96,7 +96,6 @@ export function OutcomeOverlay({
   const roundScoreDelta = resolution?.scoreDelta ?? 0;
   const normalStatuses = buildNormalMetrics(dailySeed, skinType, roundScoreDelta, runCount);
   const successRank = buildSuccessRank(dailySeed, runCount);
-  const successSubtitle = buildSuccessSubtitle(dailySeed, runCount);
   const successStats = buildSuccessStats(dailySeed, roundScoreDelta, runCount);
   const rareSuccessStats = useMemo(
     () => buildRareSuccessStats(roundScoreDelta, runCount),
@@ -108,6 +107,43 @@ export function OutcomeOverlay({
   const failData = buildFailStats(dailySeed, roundScoreDelta, runCount);
   const disasterRank = buildDisasterRank(dailySeed, runCount);
   const disasterData = buildDisasterData(dailySeed, roundScoreDelta, runCount);
+  const rankCommentKey: RankCommentKey = isRareDisplay
+    ? 'EXCELLENT'
+    : isNormal
+      ? 'NORMAL'
+      : isSuccess
+        ? (successRank as RankCommentKey)
+        : isMeh
+          ? (mehRank as RankCommentKey)
+          : isFail
+            ? (failRank === 'MELTDOWN' ? 'FAIL_MELTDOWN' : (failRank as RankCommentKey))
+            : isDisaster
+              ? (disasterRank === 'MELTDOWN' ? 'DISASTER_MELTDOWN' : (disasterRank as RankCommentKey))
+              : 'NORMAL';
+  const rankCommentClassMap: Record<RankCommentKey, string> = {
+    NORMAL: 'rank-comment-normal',
+    GLOWBURST: 'rank-comment-success',
+    RADIANT: 'rank-comment-success',
+    'PERFECT SKIN': 'rank-comment-success',
+    ASCENDED: 'rank-comment-success',
+    EXCELLENT: 'rank-comment-success',
+    CLOSE: 'rank-comment-meh',
+    ALMOST: 'rank-comment-meh',
+    'MID SKIN': 'rank-comment-meh',
+    'NOT BAD': 'rank-comment-meh',
+    '...OK': 'rank-comment-meh',
+    OVERHEAT: 'rank-comment-fail',
+    'SKIN DAMAGE': 'rank-comment-fail',
+    'BAD REACTION': 'rank-comment-fail',
+    CRITICAL: 'rank-comment-fail',
+    FAIL_MELTDOWN: 'rank-comment-fail',
+    'SKIN COLLAPSE': 'rank-comment-disaster',
+    DISASTER: 'rank-comment-disaster',
+    DISASTER_MELTDOWN: 'rank-comment-disaster',
+    'PORE APOCALYPSE': 'rank-comment-disaster',
+    'SYSTEM FAILURE': 'rank-comment-disaster',
+  };
+  const commentToneClass = `rank-comment ${rankCommentClassMap[rankCommentKey]}`.trim();
 
   const {
     showShutterGuide,
@@ -123,7 +159,7 @@ export function OutcomeOverlay({
     isSuccess,
     excellentPresentation: isRareDisplay,
     isDisaster,
-    runCount,
+    rankCommentKey,
   });
 
   return (
@@ -158,8 +194,8 @@ export function OutcomeOverlay({
               animatedRoundDelta={animatedRoundDelta}
               dailySeed={dailySeed}
               metrics={normalStatuses.map((s) => ({ label: s.label, value: s.value }))}
-              rankMain="NORMAL"
-              rankSubPair={['CLEAN', 'STABLE']}
+              commentText={voiceCaptionText}
+              commentToneClass={commentToneClass}
               accent="neutral"
               comboStreak={successStreak}
               motionState={motionState}
@@ -172,43 +208,48 @@ export function OutcomeOverlay({
               dailySeed={dailySeed}
               motionState={motionState}
               rareStats={rareSuccessStats}
+              commentText={voiceCaptionText}
+              commentToneClass={commentToneClass}
             />
           ) : isSuccess ? (
             <SuccessOutcomePanel
               resultImagePath={resultImagePath}
-              successRank={successRank}
-              successSubtitle={successSubtitle}
               successStats={successStats}
               animatedRoundDelta={animatedRoundDelta}
               dailySeed={dailySeed}
               successStreak={successStreak}
+              commentText={voiceCaptionText}
+              commentToneClass={commentToneClass}
               motionState={motionState}
             />
           ) : isMeh ? (
             <MehOutcomePanel
               resultImagePath={resultImagePath}
-              mehRank={mehRank}
               mehStats={mehStats}
               animatedRoundDelta={animatedRoundDelta}
               dailySeed={dailySeed}
+              commentText={voiceCaptionText}
+              commentToneClass={commentToneClass}
               motionState={motionState}
             />
           ) : isFail ? (
             <FailOutcomePanel
               resultImagePath={resultImagePath}
-              failRank={failRank}
               failData={failData}
               dailySeed={dailySeed}
               animatedRoundDelta={animatedRoundDelta}
+              commentText={voiceCaptionText}
+              commentToneClass={commentToneClass}
               motionState={motionState}
             />
           ) : isDisaster ? (
             <DisasterOutcomePanel
               resultImagePath={resultImagePath}
-              disasterRank={disasterRank}
               disasterData={disasterData}
               dailySeed={dailySeed}
               animatedRoundDelta={animatedRoundDelta}
+              commentText={voiceCaptionText}
+              commentToneClass={commentToneClass}
               motionState={motionState}
             />
           ) : (
@@ -225,7 +266,6 @@ export function OutcomeOverlay({
               successStreak={successStreak}
             />
           )}
-
           <button
             type="button"
             className={`primary-button retry-button result-ui-controls ${showRetryPulse ? 'cta-pulse' : ''} ${isRareDisplay ? 'success-retry-button' : ''} ${isFail ? 'fail-retry-button' : ''} ${isDisaster ? 'disaster-retry-button' : ''}`}

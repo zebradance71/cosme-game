@@ -8,18 +8,20 @@ interface PanelCommonProps {
 }
 
 interface FailPanelProps extends PanelCommonProps {
-  failRank: string;
   failData: FailData;
   dailySeed: string;
   animatedRoundDelta: number;
+  commentText: string;
+  commentToneClass: string;
 }
 
 export function FailOutcomePanel({
   resultImagePath,
-  failRank,
   failData,
   dailySeed,
   animatedRoundDelta,
+  commentText,
+  commentToneClass,
   motionState = 'active',
 }: FailPanelProps) {
   const isActive = motionState === 'active';
@@ -47,8 +49,7 @@ export function FailOutcomePanel({
         )}
       </div>
       <div className="fail-rank-block">
-        <p className="fail-rank-main">{failRank}</p>
-        <p className="fail-rank-sub">SEVERE REACTION</p>
+        <p className={`fail-rank-main voice-caption ${commentToneClass}`}>{commentText}</p>
       </div>
       <div className="fail-score-box glass-card">
         <span>今回</span>
@@ -72,18 +73,20 @@ export function FailOutcomePanel({
 }
 
 interface DisasterPanelProps extends PanelCommonProps {
-  disasterRank: string;
   disasterData: DisasterData;
   dailySeed: string;
   animatedRoundDelta: number;
+  commentText: string;
+  commentToneClass: string;
 }
 
 export function DisasterOutcomePanel({
   resultImagePath,
-  disasterRank,
   disasterData,
   dailySeed,
   animatedRoundDelta,
+  commentText,
+  commentToneClass,
   motionState = 'active',
 }: DisasterPanelProps) {
   const isActive = motionState === 'active';
@@ -116,8 +119,7 @@ export function DisasterOutcomePanel({
         )}
       </div>
       <div className="disaster-rank-block">
-        <p className="disaster-rank-main">{disasterRank}</p>
-        <p className="disaster-rank-sub">PORE BREAKDOWN EVENT</p>
+        <p className={`disaster-rank-main voice-caption ${commentToneClass}`}>{commentText}</p>
       </div>
       <div className="disaster-score-box glass-card">
         <span>今回</span>

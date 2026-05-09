@@ -17,8 +17,8 @@ interface NormalOutcomePanelProps extends PanelCommonProps {
   dailySeed: string;
   /** NORMAL / 非レア SUCCESS で同じマークアップ */
   metrics: OutcomeMetricRow[];
-  rankMain: string;
-  rankSubPair: readonly [string, string];
+  commentText: string;
+  commentToneClass: string;
   /** 配色のみ success 寄せ（レイアウトは neutral と同一） */
   accent?: 'neutral' | 'success';
   comboStreak?: number;
@@ -29,8 +29,8 @@ export function NormalOutcomePanel({
   animatedRoundDelta,
   dailySeed,
   metrics,
-  rankMain,
-  rankSubPair,
+  commentText,
+  commentToneClass,
   accent = 'neutral',
   comboStreak = 0,
   motionState = 'active',
@@ -56,10 +56,7 @@ export function NormalOutcomePanel({
         )}
       </div>
       <div className="normal-rank-block">
-        <p className="normal-rank-main">{rankMain}</p>
-        <p className="normal-rank-sub">
-          {rankSubPair[0]} {rankSubPair[1]}
-        </p>
+        <p className={`normal-rank-main voice-caption ${commentToneClass}`}>{commentText}</p>
       </div>
       <div className="normal-score-box glass-card">
         <span>今回</span>
@@ -84,18 +81,20 @@ export function NormalOutcomePanel({
 }
 
 interface MehPanelProps extends PanelCommonProps {
-  mehRank: string;
   mehStats: OverlayStat[];
   animatedRoundDelta: number;
   dailySeed: string;
+  commentText: string;
+  commentToneClass: string;
 }
 
 export function MehOutcomePanel({
   resultImagePath,
-  mehRank,
   mehStats,
   animatedRoundDelta,
   dailySeed,
+  commentText,
+  commentToneClass,
   motionState = 'active',
 }: MehPanelProps) {
   const isActive = motionState === 'active';
@@ -121,8 +120,7 @@ export function MehOutcomePanel({
         )}
       </div>
       <div className="meh-rank-block">
-        <p className="meh-rank-main">{mehRank}</p>
-        <p className="meh-rank-sub">ALMOST STABLE</p>
+        <p className={`meh-rank-main voice-caption ${commentToneClass}`}>{commentText}</p>
       </div>
       <div className="meh-score-box glass-card">
         <span>今回</span>
@@ -146,13 +144,12 @@ export function MehOutcomePanel({
 }
 
 interface SuccessOutcomePanelProps extends PanelCommonProps {
-  successRank: string;
-  /** MELTDOWN の SEVERE REACTION と同じく 1 行のサブ見出し */
-  successSubtitle?: string;
   successStats: OverlayStat[];
   animatedRoundDelta: number;
   dailySeed: string;
   successStreak: number;
+  commentText: string;
+  commentToneClass: string;
 }
 
 /**
@@ -161,12 +158,12 @@ interface SuccessOutcomePanelProps extends PanelCommonProps {
  */
 export function SuccessOutcomePanel({
   resultImagePath,
-  successRank,
-  successSubtitle = 'STEADY ROUTINE',
   successStats,
   animatedRoundDelta,
   dailySeed,
   successStreak,
+  commentText,
+  commentToneClass,
   motionState = 'active',
 }: SuccessOutcomePanelProps) {
   const isActive = motionState === 'active';
@@ -191,8 +188,7 @@ export function SuccessOutcomePanel({
         )}
       </div>
       <div className="success-rank-block">
-        <p className="success-rank-main">{successRank}</p>
-        <p className="success-rank-sub">{successSubtitle}</p>
+        <p className={`success-rank-main voice-caption ${commentToneClass}`}>{commentText}</p>
       </div>
       <div className="success-score-box glass-card">
         <span>今回</span>
@@ -222,6 +218,8 @@ interface RareExcellentPanelProps extends PanelCommonProps {
   dailySeed: string;
   motionState?: 'active' | 'fading' | 'frozen';
   rareStats: OverlayStat[];
+  commentText: string;
+  commentToneClass: string;
 }
 
 export function RareExcellentOutcomePanel({
@@ -231,6 +229,8 @@ export function RareExcellentOutcomePanel({
   dailySeed,
   motionState = 'active',
   rareStats,
+  commentText,
+  commentToneClass,
 }: RareExcellentPanelProps) {
   const isActive = motionState === 'active';
   return (
@@ -254,8 +254,7 @@ export function RareExcellentOutcomePanel({
         )}
       </div>
       <div className="rare-excellent-rank-block">
-        <p className="rare-excellent-rank-main">EXCELLENT</p>
-        <p className="rare-excellent-rank-sub">RARE ASCENSION</p>
+        <p className={`success-rank-main voice-caption ${commentToneClass}`}>{commentText}</p>
       </div>
       <div className="rare-excellent-score-box glass-card">
         <span>今回</span>

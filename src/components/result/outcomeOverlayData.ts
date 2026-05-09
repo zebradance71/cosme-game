@@ -31,20 +31,57 @@ function clampMetric(value: number): number {
   return Math.max(10, Math.min(99, value));
 }
 
-/** headline 等のシード + runCount でボイス文言を決定（完全ランダムにはしない） */
-export function pickVoiceCaption(
-  seed: string,
-  outcome: 'normal' | 'success' | 'bad' | 'disaster',
-  runCount: number,
-): string {
-  const pool: Record<typeof outcome, string[]> = {
-    normal: ['ふぅ', 'すんっ', '通常運転'],
-    success: ['ピカーン', 'つやぁん', 'きらん'],
-    bad: ['うわっ', 'あれっ', 'ぬめっ'],
-    disaster: ['ガーン', 'ドーン', 'ぎゃーん'],
-  };
-  const candidates = pool[outcome];
-  const index = hashString(`${seed}-${outcome}-voice-r${runCount}`) % candidates.length;
+export type RankCommentKey =
+  | 'NORMAL'
+  | 'GLOWBURST'
+  | 'RADIANT'
+  | 'PERFECT SKIN'
+  | 'ASCENDED'
+  | 'EXCELLENT'
+  | 'CLOSE'
+  | 'ALMOST'
+  | 'MID SKIN'
+  | 'NOT BAD'
+  | '...OK'
+  | 'OVERHEAT'
+  | 'SKIN DAMAGE'
+  | 'BAD REACTION'
+  | 'CRITICAL'
+  | 'FAIL_MELTDOWN'
+  | 'SKIN COLLAPSE'
+  | 'DISASTER'
+  | 'DISASTER_MELTDOWN'
+  | 'PORE APOCALYPSE'
+  | 'SYSTEM FAILURE';
+
+const RANK_COMMENT_MAP: Record<RankCommentKey, readonly string[]> = {
+  NORMAL: ['今日の肌、平和です', 'とくに事件なし', '肌、通常営業中'],
+  GLOWBURST: ['今日、盛れてる', '肌が本気出した', 'なんか今日いい感じ'],
+  RADIANT: ['発光しかけてる', '肌、仕事した', '調子、かなり良い'],
+  'PERFECT SKIN': ['肌、完成しました', '今日の自分、強い', 'もう勝ちです'],
+  ASCENDED: ['別人レベル', '覚醒寸前です', '肌ランク、1段上へ'],
+  EXCELLENT: ['覚醒しました', '肌、バグってます', '人類卒業のお知らせ'],
+  CLOSE: ['惜しい', 'もう一歩だった', '悪くはない'],
+  ALMOST: ['伸びしろしかない', '今日は準備運動', '次に期待'],
+  'MID SKIN': ['可もなく不可もなく', '普通すぎる', '平均点です'],
+  'NOT BAD': ['ギリ耐え', 'まあ悪くない', '思ったより生きてる'],
+  '...OK': ['まあ、うん', '一旦セーフ', '深く考えないでいこう'],
+  OVERHEAT: ['攻めすぎた', '肌、怒ってます', 'ちょっと落ち着こう'],
+  'SKIN DAMAGE': ['それ今塗るやつじゃない', '肌バリア危険信号', '少し休ませよう'],
+  'BAD REACTION': ['相性、事故です', 'やらかしたかも', '赤みが主役'],
+  CRITICAL: ['肌、限界です', '今日の肌、情緒不安定', 'かなり危険です'],
+  FAIL_MELTDOWN: ['肌バリア、退職', '今日は寝よう', '全部やりすぎた'],
+  'SKIN COLLAPSE': ['肌がログアウトしました', '本日の営業終了', '明日は休みたい'],
+  DISASTER: ['明日、人に会える？', '今日、無かったことにしたい', '完全に事故'],
+  DISASTER_MELTDOWN: ['肌、終わったかもしれん', '今日はもう寝よう', '回復待ちです'],
+  'PORE APOCALYPSE': ['毛穴が独立宣言', '毛穴、存在感MAX', '接写禁止です'],
+  'SYSTEM FAILURE': ['美容液に敗北', 'システム障害発生中', '再起動をおすすめします'],
+};
+
+/** 結果画面のランクごとの一言コメントをランダム抽選 */
+export function pickRankComment(rankKey: RankCommentKey): string {
+  const candidates = RANK_COMMENT_MAP[rankKey];
+  const index = Math.floor(Math.random() * candidates.length);
   return candidates[index] ?? '';
 }
 

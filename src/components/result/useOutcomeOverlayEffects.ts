@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Outcome, Resolution } from '../../core/game/types';
-import { pickVoiceCaption } from './outcomeOverlayData';
+import type { Resolution } from '../../core/game/types';
+import { pickRankComment, type RankCommentKey } from './outcomeOverlayData';
 
 interface UseOutcomeOverlayEffectsParams {
   visible: boolean;
@@ -9,7 +9,7 @@ interface UseOutcomeOverlayEffectsParams {
   /** レア EXCELLENT 向けの派手演出（フラッシュ・スクショ枠・スコアカウント）。非レア SUCCESS では false */
   excellentPresentation: boolean;
   isDisaster: boolean;
-  runCount: number;
+  rankCommentKey: RankCommentKey;
 }
 
 /**
@@ -22,7 +22,7 @@ export function useOutcomeOverlayEffects({
   isSuccess,
   excellentPresentation,
   isDisaster,
-  runCount,
+  rankCommentKey,
 }: UseOutcomeOverlayEffectsParams) {
   const [showShutterGuide, setShowShutterGuide] = useState(false);
   const [showVoiceCaption, setShowVoiceCaption] = useState(false);
@@ -44,19 +44,15 @@ export function useOutcomeOverlayEffects({
     setShowShutterGuide(true);
     setShowVoiceCaption(true);
     setShowRetryPulse(false);
-    setVoiceCaptionText(
-      pickVoiceCaption(resolution.headline, resolution.outcome as Outcome, runCount),
-    );
+    setVoiceCaptionText(pickRankComment(rankCommentKey));
 
     const shutterTimer = window.setTimeout(() => setShowShutterGuide(false), 800);
-    const captionTimer = window.setTimeout(() => setShowVoiceCaption(false), 600);
     const pulseTimer = window.setTimeout(() => setShowRetryPulse(true), 3000);
     return () => {
       window.clearTimeout(shutterTimer);
-      window.clearTimeout(captionTimer);
       window.clearTimeout(pulseTimer);
     };
-  }, [visible, resolution, runCount]);
+  }, [visible, resolution, rankCommentKey]);
 
   useEffect(() => {
     if (!visible || !resolution) {
