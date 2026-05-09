@@ -952,7 +952,45 @@
   }
 
   .game-shell.result-mode .result-outcome-stack .result-affiliate-strip {
-    display: none;
+    display: flex;
+    gap: 2px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-suggestion-card {
+    padding: 3px 5px 3px 4px;
+    border-radius: 9px;
+    box-shadow: 0 2px 8px rgba(45, 64, 108, 0.1);
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-kicker {
+    margin: 0 0 2px;
+    font-size: 8px;
+    line-height: 1.1;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-row {
+    grid-template-columns: 24px 1fr auto;
+    column-gap: 4px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-thumb-wrap {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-name {
+    font-size: 9px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-note {
+    font-size: 7px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-item-button {
+    min-width: 34px;
+    padding: 1px 5px;
+    font-size: 7px;
   }
 
   .game-shell.result-mode .game-hud {
@@ -981,11 +1019,11 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-visual-frame,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-visual-frame,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame {
-    min-height: min(46svh, 360px);
+    min-height: min(48svh, 380px);
   }
 
   .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-visual-frame {
-    min-height: min(46svh, 360px);
+    min-height: min(48svh, 380px);
     aspect-ratio: 3 / 4;
   }
 
@@ -1002,7 +1040,16 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box,
   .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box {
-    padding: 4px 7px;
+    padding: 3px 6px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-score-box span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box span,
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box span {
+    font-size: 8px;
   }
 
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box strong,
@@ -1011,7 +1058,32 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box strong,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box strong,
   .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box strong {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-card,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-card,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-status-card,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-status-card,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-status-card,
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-status-card {
+    padding: 3px 6px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-card span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-card span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-status-card span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-status-card span,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-status-card span {
+    font-size: 8px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-status-card strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-status-card strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-status-card strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-status-card strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-status-card strong {
+    font-size: 12px;
   }
 }
 
