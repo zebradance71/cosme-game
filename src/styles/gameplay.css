@@ -873,6 +873,30 @@
 }
 
 @media (max-width: 420px) {
+  .game-shell {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .serum-comment-overlay-wrap {
+    height: auto;
+    min-height: 44px;
+  }
+
+  .serum-comment-panel {
+    padding: 8px 10px;
+    min-height: 40px;
+  }
+
+  .serum-comment-panel--ssr-hint {
+    padding: 9px 10px;
+  }
+
+  .serum-comment-panel--ssr-hint .placeholder {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
   .hud-recovery-floating {
     top: 72px;
     left: 14px;
@@ -887,6 +911,48 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay {
     top: auto;
     bottom: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* モバイルは画像面積を優先し、情報帯を少し圧縮 */
+  .game-shell.result-mode .result-outcome-stack {
+    gap: 4px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip {
+    gap: 3px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-suggestion-card:nth-child(n + 2) {
+    display: none;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame,
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-visual-frame {
+    min-height: min(38svh, 300px);
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-score-box,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box,
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box {
+    padding: 4px 7px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-score-box strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box strong,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box strong,
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box strong {
+    font-size: 15px;
   }
 }
 
