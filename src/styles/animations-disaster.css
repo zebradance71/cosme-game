@@ -150,10 +150,28 @@
 
 @media (max-width: 420px) {
   .app-bg {
-    padding: 0;
+    /* フルブリードでもノッチ／ホームインジケータを避け、上から詰めて最初の画面全体を見せる */
+    justify-content: flex-start;
+    align-items: stretch;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+      env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
   .app-frame {
-    min-height: 100svh;
+    width: 100%;
+    min-height: calc(
+      100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
     border-radius: 0;
+    /* 縦に長いコンテンツはページ全体でスクロール（overflow: hidden だと下端が切れる） */
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+  .app-frame:has(.game-shell.result-mode) {
+    height: calc(
+      100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
+    min-height: calc(
+      100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+    );
   }
 }

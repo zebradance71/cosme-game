@@ -841,6 +841,37 @@
   padding: 10px 14px;
 }
 
+/* PC: 結果の見え方をモバイルに寄せる（画像を大きく、必要時のみオーバーレイ内スクロール） */
+@media (min-width: 421px) {
+  .game-shell.result-mode .result-outcome-stack {
+    justify-content: flex-start;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .game-shell.result-mode .outcome-overlay.rare-outcome {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame {
+    flex: 1 1 0;
+    min-height: min(300px, 42svh);
+  }
+
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-visual-frame {
+    flex: 1 1 0;
+    min-height: min(300px, 42svh);
+  }
+}
+
 @media (max-width: 420px) {
   .hud-recovery-floating {
     top: 72px;

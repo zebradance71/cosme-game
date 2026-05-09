@@ -88,7 +88,11 @@ export async function playOutcomeSfx(
   variantClass?: string,
   reactionKey?: string,
   rareResultActive?: boolean,
+  soundEnabled = true,
 ): Promise<void> {
+  if (!soundEnabled) {
+    return;
+  }
   const rate = variantRate(variantClass);
   const path = rareResultActive ? '/assets/audio/sfx/rare-jajaan3.mp3' : resolveSfxPath(outcome, reactionKey);
   const filePlayed = await playFileWithRate(path, rate);

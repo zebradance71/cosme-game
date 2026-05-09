@@ -48,6 +48,13 @@ body {
   height: min(900px, calc(100svh - var(--app-frame-vpad)));
 }
 
+/* PC: 結果のヒーロー画像をモバイル全幅に近いスケールに（ビューポートからはみ出さない） */
+@media (min-width: 421px) {
+  .app-frame:has(.game-shell.result-mode) {
+    width: min(480px, calc(100vw - 32px));
+  }
+}
+
 .game-shell {
   position: relative;
   display: flex;

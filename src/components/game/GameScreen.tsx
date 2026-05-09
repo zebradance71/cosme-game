@@ -28,9 +28,16 @@ function achievementTitleStripScale(count: number): number {
 }
 
 export function GameScreen() {
+  const tutorialSeenKey = 'cosme-game-tutorial-seen';
+  const bgmEnabledKey = 'cosme-game-bgm-enabled';
   const [heroShotFlash, setHeroShotFlash] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
-  const [bgmEnabled, setBgmEnabled] = useState(true);
+  const [bgmEnabled, setBgmEnabled] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return window.localStorage.getItem(bgmEnabledKey) === '1';
+  });
   const [isPourAnimating, setIsPourAnimating] = useState(false);
   const [pourAnimation, setPourAnimation] = useState<{
     serum: SerumType;
@@ -45,8 +52,6 @@ export function GameScreen() {
   const [commentAnimKey, setCommentAnimKey] = useState(0);
   const shellRef = useRef<HTMLElement | null>(null);
   const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const tutorialSeenKey = 'cosme-game-tutorial-seen';
-  const bgmEnabledKey = 'cosme-game-bgm-enabled';
   const {
     phase,
     runCount,
@@ -83,16 +88,6 @@ export function GameScreen() {
     const seen = window.localStorage.getItem(tutorialSeenKey);
     if (!seen) {
       setShowTutorial(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    const stored = window.localStorage.getItem(bgmEnabledKey);
-    if (stored === '0') {
-      setBgmEnabled(false);
     }
   }, []);
 
@@ -173,9 +168,17 @@ export function GameScreen() {
         dailyVariantClass,
         resolution.reactionKey,
         Boolean(selectedSerumComment?.isRare),
+        bgmEnabled,
       );
     }
-  }, [phase, resolution?.reactionKey, resolution?.outcome, dailyVariantClass, selectedSerumComment?.isRare]);
+  }, [
+    phase,
+    resolution?.reactionKey,
+    resolution?.outcome,
+    dailyVariantClass,
+    selectedSerumComment?.isRare,
+    bgmEnabled,
+  ]);
 
   useEffect(() => {
     if (!selectedSerum) {
@@ -417,7 +420,7 @@ export function GameScreen() {
           type="button"
           className="bgm-toggle-button glass-card"
           onClick={toggleBgm}
-          aria-label={bgmEnabled ? 'BGMをオフにする' : 'BGMをオンにする'}
+          aria-label={bgmEnabled ? '音声（BGM・効果音）をオフにする' : '音声（BGM・効果音）をオンにする'}
         >
           <span aria-hidden>{bgmEnabled ? '🔊' : '🔇'}</span>
         </button>

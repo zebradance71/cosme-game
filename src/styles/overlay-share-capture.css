@@ -35,6 +35,14 @@
   overflow: hidden;
 }
 
+/* PC 結果: 画像を大きくしたあとでも .screenshot-focus の hidden に負けないよう上書き */
+@media (min-width: 421px) {
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.screenshot-focus {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 .result-ui-controls {
   transition: opacity 0.28s ease, filter 0.28s ease, transform 0.28s ease;
 }
