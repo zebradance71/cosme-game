@@ -31,7 +31,12 @@ function clampMetric(value: number): number {
   return Math.max(10, Math.min(99, value));
 }
 
-export function pickVoiceCaption(seed: string, outcome: 'normal' | 'success' | 'bad' | 'disaster'): string {
+/** headline 等のシード + runCount でボイス文言を決定（完全ランダムにはしない） */
+export function pickVoiceCaption(
+  seed: string,
+  outcome: 'normal' | 'success' | 'bad' | 'disaster',
+  runCount: number,
+): string {
   const pool: Record<typeof outcome, string[]> = {
     normal: ['ふぅ', 'すんっ', '通常運転'],
     success: ['ピカーン', 'つやぁん', 'きらん'],
@@ -39,11 +44,16 @@ export function pickVoiceCaption(seed: string, outcome: 'normal' | 'success' | '
     disaster: ['ガーン', 'ドーン', 'ぎゃーん'],
   };
   const candidates = pool[outcome];
-  const index = hashString(`${seed}-${outcome}-voice`) % candidates.length;
+  const index = hashString(`${seed}-${outcome}-voice-r${runCount}`) % candidates.length;
   return candidates[index] ?? '';
 }
 
-export function buildNormalMetrics(seed: string, skinType: SkinType | null, roundScore = 0): SkinMetric[] {
+export function buildNormalMetrics(
+  seed: string,
+  skinType: SkinType | null,
+  roundScore: number,
+  runCount: number,
+): SkinMetric[] {
   const bases: SkinMetric[] = [
     { label: '水分', value: 84 },
     { label: 'キメ', value: 86 },
@@ -59,8 +69,10 @@ export function buildNormalMetrics(seed: string, skinType: SkinType | null, roun
   const bias = skinType ? typeBiasMap[skinType] : [0, 0, 0, 0];
 
   return bases.map((base, index) => {
-    const mix = hashString(`${seed || 'base'}-${base.label}-${skinType ?? 'none'}-n${roundScore}`);
-    const swing = (mix % 9) - 4 + Math.min(2, roundScore);
+    const mix = hashString(
+      `${seed || 'base'}-r${runCount}-${base.label}-${skinType ?? 'none'}-n${roundScore}`,
+    );
+    const swing = (mix % 11) - 5 + Math.min(2, roundScore);
     return {
       ...base,
       value: clampMetric(base.value + bias[index] + swing),
@@ -68,29 +80,46 @@ export function buildNormalMetrics(seed: string, skinType: SkinType | null, roun
   });
 }
 
-export function buildSuccessRank(seed: string): string {
+export function buildSuccessRank(seed: string, runCount: number): string {
   const ranks = ['GLOWBURST', 'RADIANT', 'PERFECT SKIN', 'ASCENDED'] as const;
-  const pick = hashString(`${seed}-success-rank`) % ranks.length;
+  const pick = hashString(`${seed}-r${runCount}-success-rank`) % ranks.length;
   return ranks[pick] ?? 'GLOWBURST';
 }
 
-export function buildRareSuccessStats(scoreDelta: number): OverlayStat[] {
-  const glow = Math.min(999, 260 + (scoreDelta % 740));
-  const pore = Math.min(99, 35 + (scoreDelta % 65));
-  const aura = 180 + (scoreDelta % 500);
+const SUCCESS_SUBTITLES = ['STEADY ROUTINE', 'BALANCED FLOW', 'ROUTINE LOCK', 'BASELINE HOLD'] as const;
+
+export function buildSuccessSubtitle(seed: string, runCount: number): string {
+  const pick = hashString(`${seed}-r${runCount}-success-sub`) % SUCCESS_SUBTITLES.length;
+  return SUCCESS_SUBTITLES[pick] ?? 'STEADY ROUTINE';
+}
+
+export function buildRareSuccessStats(scoreDelta: number, runCount: number): OverlayStat[] {
+  const glow = Math.min(
+    999,
+    260 + (scoreDelta % 740) + (hashString(`rare-glow-${scoreDelta}-r${runCount}`) % 24),
+  );
+  const pore = Math.min(
+    99,
+    35 + (scoreDelta % 65) + (hashString(`rare-pore-${scoreDelta}-r${runCount}`) % 9),
+  );
+  const aura = 180 + (scoreDelta % 500) + (hashString(`rare-aura-${scoreDelta}-r${runCount}`) % 36);
+  const grade = scoreDelta >= 1500 ? 'EX+' : 'EX';
   return [
     { label: '輝度', value: `${glow}` },
     { label: '毛穴', value: `-${pore}%` },
     { label: 'オーラ', value: `+${aura}%` },
-    { label: '格', value: scoreDelta >= 1500 ? 'EX+' : 'EX' },
+    { label: '格', value: grade },
   ];
 }
 
-export function buildSuccessStats(seed: string, scoreDelta: number): OverlayStat[] {
+export function buildSuccessStats(seed: string, scoreDelta: number, runCount: number): OverlayStat[] {
   const t = (scoreDelta - 40) / 80;
-  const glow = 240 + Math.round(100 * t) + (hashString(`${seed}-glow-${scoreDelta}`) % 61);
-  const poreCut = 88 + Math.round(7 * t) + (hashString(`${seed}-pore-${scoreDelta}`) % 10);
-  const comboLv = 88 + Math.round(12 * t) + (hashString(`${seed}-lv-${scoreDelta}`) % 10);
+  const glow =
+    240 + Math.round(100 * t) + (hashString(`${seed}-r${runCount}-glow-${scoreDelta}`) % 61);
+  const poreCut =
+    88 + Math.round(7 * t) + (hashString(`${seed}-r${runCount}-pore-${scoreDelta}`) % 10);
+  const comboLv =
+    88 + Math.round(12 * t) + (hashString(`${seed}-r${runCount}-lv-${scoreDelta}`) % 10);
   return [
     { label: '水分', value: 'MAX' },
     { label: '毛穴', value: `-${poreCut}%` },
@@ -99,18 +128,21 @@ export function buildSuccessStats(seed: string, scoreDelta: number): OverlayStat
   ];
 }
 
-export function buildMehRank(seed: string): string {
+export function buildMehRank(seed: string, runCount: number): string {
   const ranks = ['CLOSE', 'ALMOST', 'MID SKIN', 'NOT BAD', '...OK'] as const;
-  const pick = hashString(`${seed}-meh-rank`) % ranks.length;
+  const pick = hashString(`${seed}-r${runCount}-meh-rank`) % ranks.length;
   return ranks[pick] ?? 'ALMOST';
 }
 
-export function buildMehStats(seed: string, scoreDelta: number): OverlayStat[] {
+export function buildMehStats(seed: string, scoreDelta: number, runCount: number): OverlayStat[] {
   const loss = Math.abs(scoreDelta);
-  const redness = 14 + (loss % 12) + (hashString(`${seed}-meh-red-${scoreDelta}`) % 8);
-  const pores = 4 + (loss % 8) + (hashString(`${seed}-meh-pore-${scoreDelta}`) % 6);
-  const hydrationLoss = 6 + (loss % 8) + (hashString(`${seed}-meh-hyd-${scoreDelta}`) % 6);
-  const inflameLevel = ['LOW', 'L-LOW', 'LOW+'][hashString(`${seed}-meh-inf-${scoreDelta}`) % 3] ?? 'LOW';
+  const redness =
+    14 + (loss % 12) + (hashString(`${seed}-r${runCount}-meh-red-${scoreDelta}`) % 8);
+  const pores = 4 + (loss % 8) + (hashString(`${seed}-r${runCount}-meh-pore-${scoreDelta}`) % 6);
+  const hydrationLoss =
+    6 + (loss % 8) + (hashString(`${seed}-r${runCount}-meh-hyd-${scoreDelta}`) % 6);
+  const inflameLevel =
+    ['LOW', 'L-LOW', 'LOW+'][hashString(`${seed}-r${runCount}-meh-inf-${scoreDelta}`) % 3] ?? 'LOW';
   return [
     { label: '赤み', value: `+${redness}%` },
     { label: '毛穴', value: `+${pores}%` },
@@ -119,17 +151,21 @@ export function buildMehStats(seed: string, scoreDelta: number): OverlayStat[] {
   ];
 }
 
-export function buildFailRank(seed: string): string {
+export function buildFailRank(seed: string, runCount: number): string {
   const ranks = ['OVERHEAT', 'SKIN DAMAGE', 'BAD REACTION', 'CRITICAL', 'MELTDOWN'] as const;
-  const pick = hashString(`${seed}-fail-rank`) % ranks.length;
+  const pick = hashString(`${seed}-r${runCount}-fail-rank`) % ranks.length;
   return ranks[pick] ?? 'CRITICAL';
 }
 
-export function buildFailStats(seed: string, scoreDelta: number): FailData {
+export function buildFailStats(seed: string, scoreDelta: number, runCount: number): FailData {
   const loss = Math.abs(scoreDelta);
-  const redness = 360 + (loss * 8) % 80 + (hashString(`${seed}-fail-red-${scoreDelta}`) % 40);
-  const hydrationLoss = 65 + (loss % 20) + (hashString(`${seed}-fail-hyd-${scoreDelta}`) % 12);
-  const tempTag = ['MAX', 'MAX+', 'OVER MAX'][hashString(`${seed}-fail-temp-${scoreDelta}`) % 3] ?? 'MAX';
+  const redness =
+    360 + (loss * 8) % 80 + (hashString(`${seed}-r${runCount}-fail-red-${scoreDelta}`) % 40);
+  const hydrationLoss =
+    65 + (loss % 20) + (hashString(`${seed}-r${runCount}-fail-hyd-${scoreDelta}`) % 12);
+  const tempTag =
+    ['MAX', 'MAX+', 'OVER MAX'][hashString(`${seed}-r${runCount}-fail-temp-${scoreDelta}`) % 3] ??
+    'MAX';
   return {
     stats: [
       { label: '赤み', value: `+${redness}%` },
@@ -140,15 +176,16 @@ export function buildFailStats(seed: string, scoreDelta: number): FailData {
   };
 }
 
-export function buildDisasterRank(seed: string): string {
+export function buildDisasterRank(seed: string, runCount: number): string {
   const ranks = ['SKIN COLLAPSE', 'DISASTER', 'PORE APOCALYPSE', 'MELTDOWN', 'SYSTEM FAILURE'] as const;
-  const pick = hashString(`${seed}-disaster-rank`) % ranks.length;
+  const pick = hashString(`${seed}-r${runCount}-disaster-rank`) % ranks.length;
   return ranks[pick] ?? 'DISASTER';
 }
 
-export function buildDisasterData(seed: string, scoreDelta: number): DisasterData {
+export function buildDisasterData(seed: string, scoreDelta: number, runCount: number): DisasterData {
   const loss = Math.abs(scoreDelta);
-  const poreAmp = 400 + (loss % 400) + (hashString(`${seed}-dis-pore-${scoreDelta}`) % 200);
+  const poreAmp =
+    400 + (loss % 400) + (hashString(`${seed}-r${runCount}-dis-pore-${scoreDelta}`) % 200);
   return {
     stats: [
       { label: '毛穴', value: `+${poreAmp}%` },

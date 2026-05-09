@@ -54,6 +54,9 @@ body {
   flex-direction: column;
   gap: 12px;
   padding: 14px;
+  /* ラベルや結果テキストをクリックしてもテキストカレットが出ないようにする */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .game-shell.result-mode {

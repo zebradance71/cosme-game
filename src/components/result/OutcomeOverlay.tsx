@@ -22,6 +22,7 @@ import {
   buildRareSuccessStats,
   buildSuccessRank,
   buildSuccessStats,
+  buildSuccessSubtitle,
 } from './outcomeOverlayData';
 import { useOutcomeOverlayEffects } from './useOutcomeOverlayEffects';
 
@@ -35,6 +36,8 @@ interface OutcomeOverlayProps {
   comboCutIn: boolean;
   successStreak: number;
   rareResultActive: boolean;
+  /** セッション内のプレイ回数（同日でも hash に混ぜて表示に揺らぎを付ける） */
+  runCount: number;
   onRetry: () => void;
 }
 
@@ -48,6 +51,7 @@ export function OutcomeOverlay({
   comboCutIn,
   successStreak,
   rareResultActive,
+  runCount,
   onRetry,
 }: OutcomeOverlayProps) {
   const [freezeMotion, setFreezeMotion] = useState(false);
@@ -90,16 +94,20 @@ export function OutcomeOverlay({
   const isDisaster = !isRareDisplay && patternKey === 'disaster';
 
   const roundScoreDelta = resolution?.scoreDelta ?? 0;
-  const normalStatuses = buildNormalMetrics(dailySeed, skinType, roundScoreDelta);
-  const successRank = buildSuccessRank(dailySeed);
-  const successStats = buildSuccessStats(dailySeed, roundScoreDelta);
-  const rareSuccessStats = useMemo(() => buildRareSuccessStats(roundScoreDelta), [roundScoreDelta]);
-  const mehRank = buildMehRank(dailySeed);
-  const mehStats = buildMehStats(dailySeed, roundScoreDelta);
-  const failRank = buildFailRank(dailySeed);
-  const failData = buildFailStats(dailySeed, roundScoreDelta);
-  const disasterRank = buildDisasterRank(dailySeed);
-  const disasterData = buildDisasterData(dailySeed, roundScoreDelta);
+  const normalStatuses = buildNormalMetrics(dailySeed, skinType, roundScoreDelta, runCount);
+  const successRank = buildSuccessRank(dailySeed, runCount);
+  const successSubtitle = buildSuccessSubtitle(dailySeed, runCount);
+  const successStats = buildSuccessStats(dailySeed, roundScoreDelta, runCount);
+  const rareSuccessStats = useMemo(
+    () => buildRareSuccessStats(roundScoreDelta, runCount),
+    [roundScoreDelta, runCount],
+  );
+  const mehRank = buildMehRank(dailySeed, runCount);
+  const mehStats = buildMehStats(dailySeed, roundScoreDelta, runCount);
+  const failRank = buildFailRank(dailySeed, runCount);
+  const failData = buildFailStats(dailySeed, roundScoreDelta, runCount);
+  const disasterRank = buildDisasterRank(dailySeed, runCount);
+  const disasterData = buildDisasterData(dailySeed, roundScoreDelta, runCount);
 
   const {
     showShutterGuide,
@@ -115,6 +123,7 @@ export function OutcomeOverlay({
     isSuccess,
     excellentPresentation: isRareDisplay,
     isDisaster,
+    runCount,
   });
 
   return (
@@ -168,7 +177,7 @@ export function OutcomeOverlay({
             <SuccessOutcomePanel
               resultImagePath={resultImagePath}
               successRank={successRank}
-              successSubtitle="STEADY ROUTINE"
+              successSubtitle={successSubtitle}
               successStats={successStats}
               animatedRoundDelta={animatedRoundDelta}
               dailySeed={dailySeed}

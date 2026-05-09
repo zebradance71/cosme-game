@@ -341,7 +341,6 @@ export function GameScreen() {
                   key={title}
                   className={`achievement-title-chip ${getAchievementTitleChipClass(title)} ${latestUnlockedTitle === title ? 'latest-unlocked' : ''}`.trim()}
                   data-flavor={getTitleFlavor(title)}
-                  title={getTitleFlavor(title)}
                 >
                   {title}
                 </span>
@@ -367,6 +366,7 @@ export function GameScreen() {
             comboCutIn={comboCutIn}
             successStreak={successStreak}
             rareResultActive={Boolean(selectedSerumComment?.isRare)}
+            runCount={runCount}
             onRetry={retry}
           />
         </div>
@@ -382,6 +382,7 @@ export function GameScreen() {
           comboCutIn={comboCutIn}
           successStreak={successStreak}
           rareResultActive={false}
+          runCount={runCount}
           onRetry={retry}
         />
       )}

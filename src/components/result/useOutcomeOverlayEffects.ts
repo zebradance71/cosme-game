@@ -9,6 +9,7 @@ interface UseOutcomeOverlayEffectsParams {
   /** レア EXCELLENT 向けの派手演出（フラッシュ・スクショ枠・スコアカウント）。非レア SUCCESS では false */
   excellentPresentation: boolean;
   isDisaster: boolean;
+  runCount: number;
 }
 
 /**
@@ -21,6 +22,7 @@ export function useOutcomeOverlayEffects({
   isSuccess,
   excellentPresentation,
   isDisaster,
+  runCount,
 }: UseOutcomeOverlayEffectsParams) {
   const [showShutterGuide, setShowShutterGuide] = useState(false);
   const [showVoiceCaption, setShowVoiceCaption] = useState(false);
@@ -42,7 +44,9 @@ export function useOutcomeOverlayEffects({
     setShowShutterGuide(true);
     setShowVoiceCaption(true);
     setShowRetryPulse(false);
-    setVoiceCaptionText(pickVoiceCaption(resolution.headline, resolution.outcome as Outcome));
+    setVoiceCaptionText(
+      pickVoiceCaption(resolution.headline, resolution.outcome as Outcome, runCount),
+    );
 
     const shutterTimer = window.setTimeout(() => setShowShutterGuide(false), 800);
     const captionTimer = window.setTimeout(() => setShowVoiceCaption(false), 600);
@@ -52,7 +56,7 @@ export function useOutcomeOverlayEffects({
       window.clearTimeout(captionTimer);
       window.clearTimeout(pulseTimer);
     };
-  }, [visible, resolution]);
+  }, [visible, resolution, runCount]);
 
   useEffect(() => {
     if (!visible || !resolution) {
