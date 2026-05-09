@@ -873,28 +873,59 @@
 }
 
 @media (max-width: 420px) {
-  .game-shell {
+  /* 初期画面のみ縦方向を圧縮して、iPhoneで1画面に収めやすくする */
+  .game-shell:not(.result-mode) {
     gap: 8px;
     padding: 10px;
   }
 
-  .serum-comment-overlay-wrap {
+  .game-shell:not(.result-mode) .skin-stage {
+    height: 192px;
+    border-radius: 22px;
+  }
+
+  .game-shell:not(.result-mode) .serum-grid {
+    gap: 8px;
+  }
+
+  .game-shell:not(.result-mode) .serum-card {
+    padding: 8px;
+  }
+
+  .game-shell:not(.result-mode) .primary-button {
+    padding: 11px 14px;
+  }
+
+  .game-shell:not(.result-mode) .serum-comment-overlay-wrap {
     height: auto;
     min-height: 44px;
   }
 
-  .serum-comment-panel {
+  .game-shell:not(.result-mode) .serum-comment-panel {
     padding: 8px 10px;
     min-height: 40px;
   }
 
-  .serum-comment-panel--ssr-hint {
+  .game-shell:not(.result-mode) .serum-comment-panel--ssr-hint {
     padding: 9px 10px;
   }
 
-  .serum-comment-panel--ssr-hint .placeholder {
+  .game-shell:not(.result-mode) .serum-comment-panel--ssr-hint .placeholder {
     font-size: 12px;
     line-height: 1.25;
+  }
+
+  .game-shell:not(.result-mode) .achievement-panel {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .game-shell:not(.result-mode) .achievement-item {
+    padding: 6px 8px;
+  }
+
+  .game-shell:not(.result-mode) .achievement-item strong {
+    font-size: 22px;
   }
 
   .hud-recovery-floating {
@@ -921,20 +952,48 @@
   }
 
   .game-shell.result-mode .result-outcome-stack .result-affiliate-strip {
-    gap: 3px;
+    display: none;
   }
 
-  .game-shell.result-mode .result-outcome-stack .result-affiliate-strip .recovery-suggestion-card:nth-child(n + 2) {
-    display: none;
+  .game-shell.result-mode .game-hud {
+    gap: 4px;
+  }
+
+  .game-shell.result-mode .glass-pill {
+    padding: 4px 8px;
+  }
+
+  .game-shell.result-mode .glass-pill > span {
+    font-size: 7px;
+  }
+
+  .game-shell.result-mode .glass-pill > strong {
+    font-size: 12px;
+  }
+
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay {
+    padding: 8px;
+    gap: 3px;
   }
 
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-visual-frame,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-visual-frame,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-visual-frame,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-visual-frame,
-  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame,
+  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame {
+    min-height: min(46svh, 360px);
+  }
+
   .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-visual-frame {
-    min-height: min(38svh, 300px);
+    min-height: min(46svh, 360px);
+    aspect-ratio: 3 / 4;
+  }
+
+  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-image {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: cover;
   }
 
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box,
@@ -952,7 +1011,7 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-score-box strong,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-score-box strong,
   .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-score-box strong {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 
