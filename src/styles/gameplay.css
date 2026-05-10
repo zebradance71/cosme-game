@@ -76,14 +76,30 @@
 
 .skin-hotspot {
   position: absolute;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   border: 0;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0);
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  line-height: 0;
+  display: block;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .skin-hotspot.is-selected {
-  box-shadow: inset 0 0 0 2px rgba(82, 213, 255, 0.85);
-  background: rgba(82, 213, 255, 0.1);
+  box-shadow: inset 0 0 0 2px rgba(82, 213, 255, 0.9);
+  background: rgba(82, 213, 255, 0.12);
+}
+
+.skin-hotspot:focus-visible {
+  box-shadow:
+    inset 0 0 0 2px rgba(82, 213, 255, 0.75),
+    0 0 0 2px rgba(255, 255, 255, 0.65);
 }
 
 .skin-image-map.is-applying .skin-hotspot {
@@ -99,12 +115,27 @@
   border: 0;
   padding: 10px;
   color: inherit;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  /* outline + translateY は枠とカードのずれの原因になるため、ガラス影と一体の inset リングに統一 */
+  transition: box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .serum-card.is-selected {
-  outline: 2px solid rgba(82, 213, 255, 0.8);
-  transform: translateY(-2px);
+  outline: none;
+  transform: none;
+  box-shadow:
+    inset 0 0 0 2px rgba(82, 213, 255, 0.92),
+    0 12px 28px rgba(92, 72, 170, 0.14);
+}
+
+.serum-card:focus-visible {
+  outline: 2px solid rgba(82, 213, 255, 0.95);
+  outline-offset: 2px;
+}
+
+.serum-card.is-selected:focus-visible {
+  outline-offset: 3px;
 }
 
 .serum-grid.is-applying .serum-card {

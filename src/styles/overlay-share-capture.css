@@ -252,10 +252,10 @@
 
 @keyframes selectedPulse {
   from {
-    transform: translateY(-1px) scale(1);
+    transform: scale(1);
   }
   to {
-    transform: translateY(-1px) scale(1.03);
+    transform: scale(1.03);
   }
 }
 
