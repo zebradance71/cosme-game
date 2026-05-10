@@ -877,23 +877,32 @@
   .game-shell:not(.result-mode) {
     gap: 4px;
     padding: 6px 8px;
+    /* BGM（absolute・右下）と重ならない余白＋セーフエリア */
+    padding-bottom: calc(6px + 48px + env(safe-area-inset-bottom, 0px));
   }
 
   .game-shell:not(.result-mode) .skin-image-map {
     flex-shrink: 0;
-    width: 100%;
     max-width: 100%;
     border-radius: 20px;
   }
 
-  /* app-frame に container-type: size（base.css モバイル）があるときだけ cqh で上限 */
+  /*
+   * 縦が足りないときは「高さだけ潰す」のではなく幅を縮めて縦横比を維持する。
+   * そうしないと object-fit: cover のトリミングが変わり、% 配置のホットスポットがずれる。
+   */
   @supports (container-type: size) {
     .game-shell:not(.result-mode) .skin-image-map {
-      max-height: min(
-        calc(1017 / 819 * 100cqw),
-        max(118px, calc(100cqh - clamp(184px, 26cqh, 268px)))
-      );
+      --skin-map-max-h: max(118px, calc(100cqh - clamp(184px, 26cqh, 268px)));
+      width: min(100cqw, calc(var(--skin-map-max-h) * 819 / 1017));
+      margin-inline: auto;
+      height: auto;
     }
+  }
+
+  .game-shell:not(.result-mode) .achievement-titles {
+    margin-top: 4px;
+    gap: calc(4px * var(--chip-scale, 1));
   }
 
   .game-shell:not(.result-mode) .skin-stage {
@@ -905,6 +914,7 @@
     .game-shell:not(.result-mode) {
       gap: 3px;
       padding: 4px 6px;
+      padding-bottom: calc(4px + 48px + env(safe-area-inset-bottom, 0px));
     }
 
     .game-shell:not(.result-mode) .glass-pill {
@@ -1085,11 +1095,6 @@
     font-size: 8px;
     margin-top: 2px;
     letter-spacing: 0.06em;
-  }
-
-  .game-shell:not(.result-mode) .achievement-titles {
-    margin-top: 4px;
-    gap: calc(4px * var(--chip-scale, 1));
   }
 
   .game-shell:not(.result-mode) .achievement-title-chip {

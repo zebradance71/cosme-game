@@ -94,7 +94,11 @@ body {
   .game-shell:not(.result-mode) {
     flex: 1 1 0;
     min-height: 0;
-    overflow: hidden;
+    /* 称号チップが下端で隠れないよう、必要時のみ縦スクロール（BGM用に下パディングは gameplay で付与） */
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 }
 
