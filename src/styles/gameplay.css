@@ -202,6 +202,10 @@
   margin: 2px 2px 0;
 }
 
+.apply-note-static__compact {
+  display: none;
+}
+
 .tempo-hint.apply-note {
   margin: 0 2px;
 }
@@ -909,9 +913,19 @@
     max-width: 100%;
   }
 
-  /* ネタ注釈は省いて縦を確保（チュートリアル等は別） */
-  .game-shell:not(.result-mode) .tempo-hint.apply-note-static {
+  /* 狭い画面は短い文言に差し替え（GameScreen の二段 span） */
+  .game-shell:not(.result-mode) .apply-note-static__full {
     display: none;
+  }
+
+  .game-shell:not(.result-mode) .apply-note-static__compact {
+    display: inline;
+  }
+
+  .game-shell:not(.result-mode) .tempo-hint.apply-note-static {
+    margin: 0;
+    font-size: 9px;
+    line-height: 1.2;
   }
 
   .game-shell:not(.result-mode) .skin-stage {

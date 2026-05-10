@@ -288,7 +288,10 @@ export function GameScreen() {
           <button type="button" className="primary-button apply-button" onClick={onApply} disabled={!canApply || isPourAnimating}>
             {phase === 'applying' ? '浸透中...' : '美容液を塗る'}
           </button>
-          <p className="tempo-hint apply-note-static">※診断結果はネタです</p>
+          <p className="tempo-hint apply-note-static" aria-label="診断結果はネタです">
+            <span className="apply-note-static__full">※診断結果はネタです</span>
+            <span className="apply-note-static__compact">※診断はネタです</span>
+          </p>
         </>
       ) : null}
       {phase !== 'resultShown' ? (
