@@ -879,6 +879,22 @@
     padding: 10px;
   }
 
+  /* アスペクト比固定を外し、HUD〜実績までの残り高さに収める（親は base でビューポート高固定） */
+  .game-shell:not(.result-mode) .skin-image-map {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    aspect-ratio: unset;
+    border-radius: 18px;
+  }
+
+  .game-shell:not(.result-mode) .skin-image-map img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center top;
+  }
+
   .game-shell:not(.result-mode) .skin-stage {
     height: 192px;
     border-radius: 22px;
@@ -942,8 +958,7 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay {
     top: auto;
     bottom: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   /* モバイルは画像面積を優先し、情報帯を少し圧縮 */
@@ -1014,25 +1029,7 @@
     gap: 3px;
   }
 
-  .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-visual-frame,
-  .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-visual-frame,
-  .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-visual-frame,
-  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .meh-visual-frame,
-  .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-visual-frame {
-    min-height: min(48svh, 380px);
-  }
-
-  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-visual-frame {
-    min-height: min(48svh, 380px);
-    aspect-ratio: 3 / 4;
-  }
-
-  .game-shell.result-mode .outcome-overlay.rare-outcome .rare-excellent-image {
-    width: 100%;
-    height: 100%;
-    max-height: none;
-    object-fit: cover;
-  }
+  /* 画像エリアは親の flex 高さに追従（min-height 固定はオーバーフロー→スクロールの原因になるため付けない） */
 
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.normal .normal-score-box,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.success:not(.rare-outcome) .success-score-box,
@@ -1084,6 +1081,33 @@
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.bad .fail-status-card strong,
   .game-shell.result-mode .result-outcome-stack .outcome-overlay.disaster .disaster-status-card strong {
     font-size: 12px;
+  }
+
+  /* 結果の一言: 文字サイズ・詰めで1行化しやすくする（はみ出し時のみ省略） */
+  .game-shell.result-mode .result-outcome-stack .voice-caption.rank-comment {
+    font-size: clamp(11px, 3.65vw, 14px);
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    padding-inline: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-feature-settings: 'palt' 1;
+    font-family:
+      'Hiragino Sans',
+      'Hiragino Kaku Gothic ProN',
+      'Noto Sans JP',
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
+  }
+
+  .game-shell.result-mode .outcome-overlay.rare-outcome .success-rank-main.voice-caption.rank-comment-success {
+    font-size: clamp(12px, 3.85vw, 16px);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

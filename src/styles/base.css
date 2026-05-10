@@ -29,8 +29,9 @@ body {
 
 .app-frame {
   --app-frame-vpad: calc(24px + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+  --app-frame-height: min(900px, calc(100svh - var(--app-frame-vpad)));
   width: min(100%, 420px);
-  min-height: min(900px, calc(100svh - var(--app-frame-vpad)));
+  min-height: var(--app-frame-height);
   display: flex;
   flex-direction: column;
   border-radius: 32px;
@@ -45,7 +46,46 @@ body {
 
 /* 結果表示: 絶対配置オーバーレイの containing block をフレーム高まで確保（grid の shrink 回避） */
 .app-frame:has(.game-shell.result-mode) {
-  height: min(900px, calc(100svh - var(--app-frame-vpad)));
+  height: var(--app-frame-height);
+}
+
+/* 狭い画面: プレイ中もフレーム高をビューポートに固定し、内側でレイアウトのみ調整（ページスクロール回避） */
+@media (max-width: 420px) {
+  html {
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  #root {
+    min-height: 100svh;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .app-bg {
+    min-height: 100svh;
+    height: 100svh;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .app-frame {
+    height: var(--app-frame-height);
+    max-height: var(--app-frame-height);
+  }
+
+  .game-shell:not(.result-mode) {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+  }
 }
 
 /* PC: 結果のヒーロー画像をモバイル全幅に近いスケールに（ビューポートからはみ出さない） */
