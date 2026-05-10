@@ -74,11 +74,13 @@ body {
     height: 100svh;
     box-sizing: border-box;
     overflow: hidden;
+    padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right))
+      calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
   }
 
   .app-frame {
     /* 外周を少し詰め、動的ツールバー込みで実効高に寄せる */
-    --app-frame-vpad: calc(16px + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+    --app-frame-vpad: calc(12px + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
     --app-frame-height: min(
       900px,
       calc(100svh - var(--app-frame-vpad)),
@@ -94,11 +96,7 @@ body {
   .game-shell:not(.result-mode) {
     flex: 1 1 0;
     min-height: 0;
-    /* 称号チップが下端で隠れないよう、必要時のみ縦スクロール（BGM用に下パディングは gameplay で付与） */
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    overflow: hidden;
   }
 }
 
