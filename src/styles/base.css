@@ -98,6 +98,10 @@ body {
     min-height: 0;
     overflow: hidden;
   }
+
+  .game-shell.result-mode {
+    overflow: hidden;
+  }
 }
 
 /* PC: 結果のヒーロー画像をモバイル全幅に近いスケールに（ビューポートからはみ出さない） */
