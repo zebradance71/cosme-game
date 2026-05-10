@@ -77,8 +77,18 @@ body {
   }
 
   .app-frame {
+    /* 外周を少し詰め、動的ツールバー込みで実効高に寄せる */
+    --app-frame-vpad: calc(16px + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+    --app-frame-height: min(
+      900px,
+      calc(100svh - var(--app-frame-vpad)),
+      calc(100dvh - var(--app-frame-vpad))
+    );
     height: var(--app-frame-height);
     max-height: var(--app-frame-height);
+    /* プレイ画面の肌マップ max-height に cqh/cqw を使う */
+    container-type: size;
+    container-name: app;
   }
 
   .game-shell:not(.result-mode) {
