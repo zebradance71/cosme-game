@@ -62,118 +62,132 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }),
     );
   },
-  pickSerum: (serum) => set((state) => chooseSerum(state, serum)),
+  pickSerum: (serum) => {
+    if (get().isProcessing) {
+      return;
+    }
+    set((state) => chooseSerum(state, serum));
+  },
   runSequence: async (opts) => {
     const snapshot = get();
     if (snapshot.phase !== 'serumSelected' || snapshot.isProcessing) {
       return;
     }
     set({ isProcessing: true });
-    set((state) => applySerum(state));
-    await wait(baseTimeline[0].ms);
-    set((state) => resolveRound(state));
-    const rareScoreDelta = opts?.rareScoreDelta;
-    if (rareScoreDelta != null) {
-      set((state) => {
-        if (!state.resolution || !state.currentSkin || !state.selectedSerum) {
-          return state;
-        }
-        const preRoundTotal = state.totalScore - state.resolution.scoreDelta;
-        let nextTotal = Math.max(0, preRoundTotal + rareScoreDelta);
-        let scoreResetFromZero = false;
-        if (nextTotal === 0) {
-          nextTotal = STARTING_SCORE;
-          scoreResetFromZero = true;
-        }
-        const appliedRareDelta = nextTotal - preRoundTotal;
+    try {
+      set((state) => applySerum(state));
+      await wait(baseTimeline[0].ms);
+      set((state) => resolveRound(state));
+      const rareScoreDelta = opts?.rareScoreDelta;
+      if (rareScoreDelta != null) {
+        set((state) => {
+          if (!state.resolution || !state.currentSkin || !state.selectedSerum) {
+            return state;
+          }
+          const preRoundTotal = state.totalScore - state.resolution.scoreDelta;
+          let nextTotal = Math.max(0, preRoundTotal + rareScoreDelta);
+          let scoreResetFromZero = false;
+          if (nextTotal === 0) {
+            nextTotal = STARTING_SCORE;
+            scoreResetFromZero = true;
+          }
+          const appliedRareDelta = nextTotal - preRoundTotal;
 
-        if (state.resolution.outcome === 'success') {
+          if (state.resolution.outcome === 'success') {
+            return {
+              ...state,
+              totalScore: nextTotal,
+              resolution: {
+                ...state.resolution,
+                scoreDelta: appliedRareDelta,
+                ...(scoreResetFromZero ? { scoreResetFromZero: true } : {}),
+              },
+            };
+          }
+
+          const successRes = buildRandomSuccessResolution();
           return {
             ...state,
             totalScore: nextTotal,
             resolution: {
-              ...state.resolution,
+              outcome: 'success',
               scoreDelta: appliedRareDelta,
+              reactionKey: successRes.reactionKey,
+              headline: successRes.headline,
+              detail: successRes.detail,
               ...(scoreResetFromZero ? { scoreResetFromZero: true } : {}),
             },
           };
-        }
+        });
+      }
+      const resolved = get().resolution;
+      if (resolved) {
+        set((state) => {
+          const totalScoreAfter = state.totalScore;
+          const isRareSuccess = resolved.outcome === 'success' && Boolean(opts?.isRarePull);
 
-        const successRes = buildRandomSuccessResolution();
-        return {
-          ...state,
-          totalScore: nextTotal,
-          resolution: {
-            outcome: 'success',
-            scoreDelta: appliedRareDelta,
-            reactionKey: successRes.reactionKey,
-            headline: successRes.headline,
-            detail: successRes.detail,
-            ...(scoreResetFromZero ? { scoreResetFromZero: true } : {}),
-          },
-        };
-      });
+          let nextCombo = state.successStreak;
+          if (resolved.scoreResetFromZero) {
+            nextCombo = 0;
+          } else if (resolved.outcome === 'disaster') {
+            nextCombo = 0;
+          } else if (resolved.outcome === 'bad') {
+            nextCombo = 0;
+          } else if (resolved.outcome === 'normal') {
+            /* 維持 */
+          } else if (resolved.outcome === 'success') {
+            nextCombo += isRareSuccess ? 2 : 1;
+          }
+
+          const nextBadStreak = resolved.outcome === 'bad' ? state.badStreak + 1 : 0;
+          const nextDisasterStreak = resolved.outcome === 'disaster' ? state.disasterStreak + 1 : 0;
+          const totalResolved = state.totalResolved + 1;
+          const totalRatedRuns = state.totalRatedRuns + (resolved.outcome === 'normal' ? 0 : 1);
+          const totalSuccesses = state.totalSuccesses + (resolved.outcome === 'success' ? 1 : 0);
+          const totalDisasters = state.totalDisasters + (resolved.outcome === 'disaster' ? 1 : 0);
+          const totalPoreCollapses =
+            state.totalPoreCollapses + (resolved.reactionKey === 'poreCollapse' ? 1 : 0);
+          const poreDeltaMap = {
+            normal: 0,
+            success: -2,
+            bad: 8,
+            disaster: 25,
+          } as const;
+          const nextPoreCollapseIndex = Math.max(0, state.poreCollapseIndex + poreDeltaMap[resolved.outcome]);
+          // 称号はスコアのみで再計算（disaster でもチップを空にしない）。コンボ: success +1 / レア +2 / normal 維持 / bad・disaster で 0
+          const mergedTitleSet = titlesUnlockedAtScore(totalScoreAfter);
+          const latestUnlockedTitle = pickLatestUnlockedTitle(state.unlockedTitleChips, mergedTitleSet);
+
+          return {
+            successStreak: nextCombo,
+            badStreak: nextBadStreak,
+            disasterStreak: nextDisasterStreak,
+            totalResolved,
+            totalRatedRuns,
+            totalSuccesses,
+            totalDisasters,
+            totalPoreCollapses,
+            poreCollapseIndex: nextPoreCollapseIndex,
+            unlockedTitleChips: mergedTitleSet,
+            latestUnlockedTitle,
+            comboCutIn: resolved.outcome === 'success' && nextCombo >= 3,
+          };
+        });
+      }
+      const resForBoost = get().resolution;
+      const boost = resForBoost ? outcomeTimelineBoost[resForBoost.outcome] : 1;
+      await wait(Math.round(baseTimeline[1].ms * boost));
+      if (get().resolution) {
+        set((state) => showResult(state));
+      }
+    } finally {
+      set({ isProcessing: false });
     }
-    const resolved = get().resolution;
-    if (resolved) {
-      set((state) => {
-        const totalScoreAfter = state.totalScore;
-        const isRareSuccess = resolved.outcome === 'success' && Boolean(opts?.isRarePull);
-
-        let nextCombo = state.successStreak;
-        if (resolved.scoreResetFromZero) {
-          nextCombo = 0;
-        } else if (resolved.outcome === 'disaster') {
-          nextCombo = 0;
-        } else if (resolved.outcome === 'bad') {
-          nextCombo = 0;
-        } else if (resolved.outcome === 'normal') {
-          /* 維持 */
-        } else if (resolved.outcome === 'success') {
-          nextCombo += isRareSuccess ? 2 : 1;
-        }
-
-        const nextBadStreak = resolved.outcome === 'bad' ? state.badStreak + 1 : 0;
-        const nextDisasterStreak = resolved.outcome === 'disaster' ? state.disasterStreak + 1 : 0;
-        const totalResolved = state.totalResolved + 1;
-        const totalRatedRuns = state.totalRatedRuns + (resolved.outcome === 'normal' ? 0 : 1);
-        const totalSuccesses = state.totalSuccesses + (resolved.outcome === 'success' ? 1 : 0);
-        const totalDisasters = state.totalDisasters + (resolved.outcome === 'disaster' ? 1 : 0);
-        const totalPoreCollapses =
-          state.totalPoreCollapses + (resolved.reactionKey === 'poreCollapse' ? 1 : 0);
-        const poreDeltaMap = {
-          normal: 0,
-          success: -2,
-          bad: 8,
-          disaster: 25,
-        } as const;
-        const nextPoreCollapseIndex = Math.max(0, state.poreCollapseIndex + poreDeltaMap[resolved.outcome]);
-        // 称号はスコアのみで再計算（disaster でもチップを空にしない）。コンボ: success +1 / レア +2 / normal 維持 / bad・disaster で 0
-        const mergedTitleSet = titlesUnlockedAtScore(totalScoreAfter);
-        const latestUnlockedTitle = pickLatestUnlockedTitle(state.unlockedTitleChips, mergedTitleSet);
-
-        return {
-          successStreak: nextCombo,
-          badStreak: nextBadStreak,
-          disasterStreak: nextDisasterStreak,
-          totalResolved,
-          totalRatedRuns,
-          totalSuccesses,
-          totalDisasters,
-          totalPoreCollapses,
-          poreCollapseIndex: nextPoreCollapseIndex,
-          unlockedTitleChips: mergedTitleSet,
-          latestUnlockedTitle,
-          comboCutIn: resolved.outcome === 'success' && nextCombo >= 3,
-        };
-      });
-    }
-    const boost = resolved ? outcomeTimelineBoost[resolved.outcome] : 1;
-    await wait(Math.round(baseTimeline[1].ms * boost));
-    set((state) => showResult(state));
-    set({ isProcessing: false });
   },
   retry: () => {
+    if (get().isProcessing) {
+      return;
+    }
     const {
       totalScore,
       runCount,

@@ -285,7 +285,12 @@ export function GameScreen() {
             onSelect={pickSerum}
           />
 
-          <button type="button" className="primary-button apply-button" onClick={onApply} disabled={!canApply || isPourAnimating}>
+          <button
+            type="button"
+            className="primary-button apply-button"
+            onClick={onApply}
+            disabled={!canApply || isPourAnimating || isProcessing}
+          >
             {phase === 'applying' ? '浸透中...' : '美容液を塗る'}
           </button>
           <p className="tempo-hint apply-note-static" aria-label="診断結果はネタです">
@@ -356,13 +361,13 @@ export function GameScreen() {
         </>
       ) : null}
 
-      {phase === 'resultShown' ? (
+      {phase === 'resultShown' && resolution ? (
         <div className="result-outcome-stack">
           <ResultAffiliateStrip
-            pickSeed={`${runCount}-${resolution?.reactionKey ?? ''}-${selectedSerumComment?.isRare ? 'rare' : 'norm'}`}
+            pickSeed={`${runCount}-${resolution.reactionKey}-${selectedSerumComment?.isRare ? 'rare' : 'norm'}`}
           />
           <OutcomeOverlay
-            key={`${runCount}-${resolution?.reactionKey ?? 'none'}-${isRareResultScreen ? 'rare' : 'norm'}`}
+            key={`${runCount}-${resolution.reactionKey}-${isRareResultScreen ? 'rare' : 'norm'}`}
             resolution={resolution}
             visible
             dailySkinCode={dailySkinCode}
